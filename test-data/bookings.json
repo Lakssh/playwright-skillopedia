@@ -1,0 +1,23 @@
+[
+  {
+    "sessionTime": "10:00",
+    "duration": 60,
+    "status": "confirmed",
+    "price": 150.00,
+    "notes": "Looking forward to learning React hooks"
+  },
+  {
+    "sessionTime": "14:00",
+    "duration": 90,
+    "status": "pending",
+    "price": 200.00,
+    "notes": "Need help with TypeScript generics"
+  },
+  {
+    "sessionTime": "16:00",
+    "duration": 60,
+    "status": "completed",
+    "price": 150.00,
+    "notes": "Great session on Node.js best practices"
+  }
+]

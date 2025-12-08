@@ -1,0 +1,29 @@
+[
+  {
+    "title": "Advanced JavaScript Masterclass",
+    "description": "Master advanced JavaScript concepts including closures, prototypes, async/await, and more",
+    "price": 299.99,
+    "duration": 40,
+    "level": "Advanced",
+    "skills": ["JavaScript", "ES6+", "Async Programming"],
+    "status": "published"
+  },
+  {
+    "title": "React for Beginners",
+    "description": "Learn React from scratch and build modern web applications",
+    "price": 199.99,
+    "duration": 30,
+    "level": "Beginner",
+    "skills": ["React", "JavaScript", "Web Development"],
+    "status": "published"
+  },
+  {
+    "title": "Node.js Backend Development",
+    "description": "Build scalable backend applications with Node.js and Express",
+    "price": 349.99,
+    "duration": 45,
+    "level": "Intermediate",
+    "skills": ["Node.js", "Express", "MongoDB", "REST API"],
+    "status": "published"
+  }
+]
