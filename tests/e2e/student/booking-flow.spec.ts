@@ -1,6 +1,5 @@
 import { test, expect } from '@playwright/test';
 import { ROUTES } from '../../../src/core/config/constants';
-import { BookingFactory } from '../../../src/core/factories/BookingFactory';
 
 test.describe('Booking Flow', () => {
   test.beforeEach(async ({ page }) => {
@@ -118,8 +117,8 @@ test.describe('Booking Flow', () => {
     const notesField = page.locator('textarea, input[placeholder*="note" i], input[placeholder*="message" i]').first();
     
     if (await notesField.isVisible({ timeout: 3000 }).catch(() => false)) {
-      const booking = BookingFactory.create();
-      await notesField.fill(booking.notes || 'Test booking notes');
+      const testNotes = 'Test booking notes for mentor session';
+      await notesField.fill(testNotes);
       
       await page.waitForTimeout(1000);
       

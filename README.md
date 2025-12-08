@@ -5,7 +5,7 @@ Enterprise-grade Playwright automation framework for testing the SkillSprig appl
 ## 🚀 Features
 
 - **Comprehensive Page Object Model** - Well-structured page objects with fluent interfaces
-- **Factory Pattern** - Test data factories for users, courses, and bookings
+- **Test Data Generation** - Helper utilities for generating test data
 - **Custom Fixtures** - Pre-authenticated contexts for different user roles
 - **MCP Server Integration** - AI-assisted test generation and selector discovery
 - **Multi-Environment Support** - Dev, staging, and production configurations
@@ -63,9 +63,8 @@ playwright-skillopedia/
 ├── src/
 │   ├── core/
 │   │   ├── base/              # Base classes (BasePage, BaseComponent, BaseApi)
-│   │   ├── factories/         # Test data factories
 │   │   ├── fixtures/          # Custom Playwright fixtures
-│   │   ├── helpers/           # Utility helpers
+│   │   ├── helpers/           # Utility helpers (DataHelper, WaitHelper, etc.)
 │   │   └── config/            # Configuration files
 │   ├── pages/                 # Page Object Models
 │   │   ├── auth/              # Authentication pages
@@ -178,17 +177,22 @@ test.describe('Login Tests', () => {
 });
 ```
 
-### Using Factories
+### Using DataHelper for Test Data
 
 ```typescript
-import { UserFactory } from '../src/core/factories/UserFactory';
+import { DataHelper } from '../src/core/helpers/DataHelper';
+import { RegisterPage } from '../src/pages/auth/RegisterPage';
 
 test('should register new user', async ({ page }) => {
-  const user = UserFactory.createStudent();
   const registerPage = new RegisterPage(page);
   
   await registerPage.goto();
-  await registerPage.register(user);
+  await registerPage.register({
+    firstName: DataHelper.generateFirstName(),
+    lastName: DataHelper.generateLastName(),
+    email: DataHelper.generateEmail(),
+    password: DataHelper.generatePassword(),
+  });
 });
 ```
 
@@ -290,23 +294,23 @@ Abstract base class providing common page operations:
 - Waiting strategies
 - Assertions
 
-### Factories
-Generate test data:
-- `UserFactory` - Create users by role
-- `CourseFactory` - Generate course data
-- `BookingFactory` - Create booking scenarios
+### Page Objects
+Encapsulate page-specific logic:
+- `LoginPage` - Login functionality with fluent interface
+- `RegisterPage` - User registration flows
+- Additional pages for Admin, Mentor, Student features
 
 ### Helpers
 Utility functions:
 - `WaitHelper` - Custom wait strategies
-- `DataHelper` - Test data generation
+- `DataHelper` - Test data generation (emails, passwords, names, etc.)
 - `AssertionHelper` - Custom assertions
 - `ApiHelper` - API utilities
 
 ## 📝 Best Practices
 
 1. **Use Page Object Model** - Encapsulate page logic in page objects
-2. **Use Factories** - Generate test data with factories
+2. **Use DataHelper** - Generate test data with DataHelper utilities
 3. **Use Custom Fixtures** - Leverage fixtures for setup
 4. **Tag Tests** - Use tags for test organization (@smoke, @critical, etc.)
 5. **Self-Healing Selectors** - Use multiple locator strategies

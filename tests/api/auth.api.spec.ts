@@ -1,6 +1,5 @@
 import { test, expect } from '@playwright/test';
 import { DataHelper } from '../../src/core/helpers/DataHelper';
-import { UserFactory } from '../../src/core/factories/UserFactory';
 
 test.describe('Authentication API Tests', () => {
   const baseURL = process.env.API_BASE_URL || 'https://skill-sprig.vercel.app/api';
@@ -61,17 +60,17 @@ test.describe('Authentication API Tests', () => {
   });
 
   test('should reject registration with invalid email @api', async ({ request }) => {
-    const user = UserFactory.createStudent({
-      email: 'invalid-email',
-    });
+    const firstName = DataHelper.generateFirstName();
+    const lastName = DataHelper.generateLastName();
+    const password = DataHelper.generatePassword();
 
     try {
       const response = await request.post(`${baseURL}/auth/register`, {
         data: {
-          email: user.email,
-          password: user.password,
-          firstName: user.firstName,
-          lastName: user.lastName,
+          email: 'invalid-email',
+          password,
+          firstName,
+          lastName,
         },
       });
 
@@ -83,17 +82,17 @@ test.describe('Authentication API Tests', () => {
   });
 
   test('should reject registration with weak password @api', async ({ request }) => {
-    const user = UserFactory.createStudent({
-      password: '123',
-    });
+    const email = DataHelper.generateEmail();
+    const firstName = DataHelper.generateFirstName();
+    const lastName = DataHelper.generateLastName();
 
     try {
       const response = await request.post(`${baseURL}/auth/register`, {
         data: {
-          email: user.email,
-          password: user.password,
-          firstName: user.firstName,
-          lastName: user.lastName,
+          email,
+          password: '123',
+          firstName,
+          lastName,
         },
       });
 

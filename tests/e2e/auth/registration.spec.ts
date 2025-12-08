@@ -1,7 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { RegisterPage } from '../../../src/pages/auth/RegisterPage';
 import { DataHelper } from '../../../src/core/helpers/DataHelper';
-import { UserFactory } from '../../../src/core/factories/UserFactory';
 
 test.describe('Registration Functionality', () => {
   let registerPage: RegisterPage;
@@ -30,12 +29,14 @@ test.describe('Registration Functionality', () => {
   });
 
   test('should show error for invalid email format @auth', async ({ page }) => {
-    const user = UserFactory.createStudent();
+    const firstName = DataHelper.generateFirstName();
+    const lastName = DataHelper.generateLastName();
+    const password = DataHelper.generatePassword();
     
-    await registerPage.enterFirstName(user.firstName);
-    await registerPage.enterLastName(user.lastName);
+    await registerPage.enterFirstName(firstName);
+    await registerPage.enterLastName(lastName);
     await registerPage.enterEmail('invalid-email');
-    await registerPage.enterPassword(user.password);
+    await registerPage.enterPassword(password);
     await registerPage.clickSubmit();
     
     await page.waitForTimeout(1000);
@@ -46,11 +47,13 @@ test.describe('Registration Functionality', () => {
   });
 
   test('should show error for weak password @auth', async ({ page }) => {
-    const user = UserFactory.createStudent();
+    const firstName = DataHelper.generateFirstName();
+    const lastName = DataHelper.generateLastName();
+    const email = DataHelper.generateEmail();
     
-    await registerPage.enterFirstName(user.firstName);
-    await registerPage.enterLastName(user.lastName);
-    await registerPage.enterEmail(user.email);
+    await registerPage.enterFirstName(firstName);
+    await registerPage.enterLastName(lastName);
+    await registerPage.enterEmail(email);
     await registerPage.enterPassword('123'); // Weak password
     
     // Check if confirm password field exists
@@ -69,16 +72,19 @@ test.describe('Registration Functionality', () => {
   });
 
   test('should show error for mismatched passwords @auth', async ({ page }) => {
-    const user = UserFactory.createStudent();
+    const firstName = DataHelper.generateFirstName();
+    const lastName = DataHelper.generateLastName();
+    const email = DataHelper.generateEmail();
+    const password = DataHelper.generatePassword();
     
     // Check if confirm password field exists
     const confirmPasswordField = page.locator('input[name="confirmPassword"], input[placeholder*="confirm" i]').first();
     
     if (await confirmPasswordField.isVisible()) {
-      await registerPage.enterFirstName(user.firstName);
-      await registerPage.enterLastName(user.lastName);
-      await registerPage.enterEmail(user.email);
-      await registerPage.enterPassword(user.password);
+      await registerPage.enterFirstName(firstName);
+      await registerPage.enterLastName(lastName);
+      await registerPage.enterEmail(email);
+      await registerPage.enterPassword(password);
       await registerPage.enterConfirmPassword('DifferentPassword123!');
       await registerPage.clickSubmit();
       
@@ -93,18 +99,21 @@ test.describe('Registration Functionality', () => {
   });
 
   test('should successfully register with valid data @auth @critical', async ({ page }) => {
-    const user = UserFactory.createStudent();
+    const firstName = DataHelper.generateFirstName();
+    const lastName = DataHelper.generateLastName();
+    const email = DataHelper.generateEmail();
+    const password = DataHelper.generatePassword();
     
     // Check what fields are available
     const confirmPasswordField = page.locator('input[name="confirmPassword"], input[placeholder*="confirm" i]').first();
     const hasConfirmPassword = await confirmPasswordField.isVisible().catch(() => false);
     
     await registerPage.register({
-      firstName: user.firstName,
-      lastName: user.lastName,
-      email: user.email,
-      password: user.password,
-      confirmPassword: hasConfirmPassword ? user.password : undefined,
+      firstName,
+      lastName,
+      email,
+      password,
+      confirmPassword: hasConfirmPassword ? password : undefined,
     });
     
     // Wait for response
@@ -134,14 +143,15 @@ test.describe('Registration Functionality', () => {
   });
 
   test('should enforce password requirements @auth', async ({ page }) => {
-    const user = UserFactory.createStudent();
+    const firstName = DataHelper.generateFirstName();
+    const lastName = DataHelper.generateLastName();
     
     // Try various weak passwords
     const weakPasswords = ['123', 'password', 'abc123'];
     
     for (const weakPassword of weakPasswords) {
-      await registerPage.enterFirstName(user.firstName);
-      await registerPage.enterLastName(user.lastName);
+      await registerPage.enterFirstName(firstName);
+      await registerPage.enterLastName(lastName);
       await registerPage.enterEmail(DataHelper.generateEmail());
       await registerPage.enterPassword(weakPassword);
       await registerPage.clickSubmit();

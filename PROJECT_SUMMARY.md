@@ -30,7 +30,7 @@ A comprehensive enterprise-grade Playwright automation framework has been succes
 | 4 | MCP server with 2+ tools | ✅ PASS | 2 tools: test-generator, selector-finder |
 | 5 | CI/CD pipelines ready | ✅ PASS | 3 GitHub Actions workflows |
 | 6 | Complete README | ✅ PASS | Comprehensive setup and usage guide |
-| 7 | Factory pattern implemented | ✅ PASS | 4 factories for data generation |
+| 7 | Page Object Model implemented | ✅ PASS | Page objects with helper utilities |
 | 8 | Custom fixtures for auth | ✅ PASS | Multi-role authentication fixtures |
 
 ## 🏗️ Architecture Overview
@@ -43,18 +43,13 @@ Core Layer (src/core/)
 │   ├── BasePage       # Common page operations
 │   ├── BaseComponent  # Reusable components
 │   └── BaseApi        # REST API client
-├── factories/         # Test data generation
-│   ├── UserFactory    # User data by role
-│   ├── CourseFactory  # Course scenarios
-│   ├── BookingFactory # Booking scenarios
-│   └── PageFactory    # Page instantiation
 ├── fixtures/          # Custom Playwright fixtures
-│   ├── test-fixtures  # Factory fixtures
+│   ├── test-fixtures  # Base test fixtures
 │   ├── auth-fixtures  # Pre-authenticated contexts
 │   └── data-fixtures  # Dynamic test data
 ├── helpers/           # Utility functions
 │   ├── WaitHelper     # Custom wait strategies
-│   ├── DataHelper     # Test data generation
+│   ├── DataHelper     # Test data generation with Faker
 │   ├── AssertionHelper# Enhanced assertions
 │   └── ApiHelper      # API utilities
 └── config/            # Configuration
@@ -106,20 +101,20 @@ tests/
 - **Lazy loading** of elements
 - **Built-in waits** and retry mechanisms
 
-### 2. Factory Pattern
-- **UserFactory**: Generate test users by role (admin, mentor, student)
-- **CourseFactory**: Create course data for different scenarios
-- **BookingFactory**: Generate booking test data with various states
-- **PageFactory**: Instantiate page objects with dependency injection
+### 2. Page Object Model
+- **LoginPage**: Login functionality with fluent interface
+- **RegisterPage**: User registration flows with self-healing selectors
+- **BasePage**: Abstract base class with common page operations
+- Additional page objects ready for implementation
 
 ### 3. Custom Fixtures
 - **authenticatedPage**: Pre-authenticated page for each role
 - **testData**: Dynamic test data generation
-- **pageFactory**: Factory fixture for page creation
+- **Base fixtures**: Extended test fixtures for custom setup
 
 ### 4. Helper Utilities
 - **WaitHelper**: Custom wait strategies, polling, exponential backoff
-- **DataHelper**: Test data generation using Faker.js
+- **DataHelper**: Test data generation using Faker.js (emails, passwords, names, etc.)
 - **AssertionHelper**: Enhanced assertions for common scenarios
 - **ApiHelper**: API request utilities and response parsing
 
@@ -252,17 +247,24 @@ npm run test:ui
 npm run test:debug
 ```
 
-### Using Factories
+### Using DataHelper for Test Data
 ```typescript
-import { UserFactory } from './src/core/factories/UserFactory';
+import { DataHelper } from './src/core/helpers/DataHelper';
+import { RegisterPage } from './src/pages/auth/RegisterPage';
 
-// Create test user
-const student = UserFactory.createStudent();
-const mentor = UserFactory.createMentor();
+// Generate test data
+const firstName = DataHelper.generateFirstName();
+const lastName = DataHelper.generateLastName();
+const email = DataHelper.generateEmail();
+const password = DataHelper.generatePassword();
 
-// Create with overrides
-const admin = UserFactory.createAdmin({
-  email: 'custom@email.com'
+// Use in test
+const registerPage = new RegisterPage(page);
+await registerPage.register({
+  firstName,
+  lastName,
+  email,
+  password,
 });
 ```
 
@@ -298,7 +300,7 @@ The framework is designed to scale:
 - **Parallel execution** across multiple workers
 - **Sharding support** for large test suites
 - **Modular architecture** for easy extension
-- **Factory pattern** for test data generation
+- **Helper utilities** for test data generation
 - **Page object model** for maintainability
 
 ## 🎯 Next Steps (Optional Enhancements)
