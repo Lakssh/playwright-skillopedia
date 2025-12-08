@@ -229,9 +229,9 @@ export abstract class BasePage {
   /**
    * Execute JavaScript in browser context
    * @param script - JavaScript code to execute
-   * @param args - Arguments to pass to the script
+   * @param arg - Argument to pass to the script
    */
-  async evaluate<R, Args extends unknown[]>(script: (args: Args) => R, ...args: Args): Promise<R> {
-    return await this.page.evaluate(script, args);
+  async evaluate<R>(script: () => R | Promise<R>): Promise<R> {
+    return await this.page.evaluate(script);
   }
 }

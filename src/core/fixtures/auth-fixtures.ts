@@ -1,5 +1,4 @@
 import { test as base, Page } from '@playwright/test';
-import { testUsers } from '../config/test-config';
 import { ROUTES } from '../config/constants';
 import path from 'path';
 

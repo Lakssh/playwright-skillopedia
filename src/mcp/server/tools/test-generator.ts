@@ -28,7 +28,7 @@ export class TestGeneratorTool implements McpTool {
     };
   }
 
-  private generateTestTemplate(description: string, pageObject?: string, testType?: string): string {
+  private generateTestTemplate(description: string, _pageObject?: string, testType?: string): string {
     return `import { test, expect } from '@playwright/test';
 
 test.describe('${description}', () => {

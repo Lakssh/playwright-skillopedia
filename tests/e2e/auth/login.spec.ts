@@ -1,8 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { LoginPage } from '../../../src/pages/auth/LoginPage';
-import { testUsers } from '../../../src/core/config/test-config';
 import { DataHelper } from '../../../src/core/helpers/DataHelper';
-import { ERROR_MESSAGES } from '../../../src/core/config/constants';
 
 test.describe('Login Functionality', () => {
   let loginPage: LoginPage;
@@ -19,38 +17,38 @@ test.describe('Login Functionality', () => {
     expect(title).toBeTruthy();
   });
 
-  test('should show validation error for empty email @auth', async () => {
+  test('should show validation error for empty email @auth', async ({ page }) => {
     await loginPage.enterPassword('SomePassword123!');
     await loginPage.clickSubmit();
     
     // Wait a bit for validation to appear
-    await loginPage.page.waitForTimeout(1000);
+    await page.waitForTimeout(1000);
     
     // The form should not submit successfully
     const currentUrl = await loginPage.getCurrentUrl();
     expect(currentUrl).toContain('/login');
   });
 
-  test('should show validation error for empty password @auth', async () => {
+  test('should show validation error for empty password @auth', async ({ page }) => {
     await loginPage.enterEmail('test@example.com');
     await loginPage.clickSubmit();
     
     // Wait a bit for validation to appear
-    await loginPage.page.waitForTimeout(1000);
+    await page.waitForTimeout(1000);
     
     // The form should not submit successfully
     const currentUrl = await loginPage.getCurrentUrl();
     expect(currentUrl).toContain('/login');
   });
 
-  test('should show error for invalid credentials @auth @critical', async () => {
+  test('should show error for invalid credentials @auth @critical', async ({ page }) => {
     const invalidEmail = DataHelper.generateEmail();
     const invalidPassword = DataHelper.generatePassword();
     
     await loginPage.login(invalidEmail, invalidPassword);
     
     // Wait for error message or stay on login page
-    await loginPage.page.waitForTimeout(2000);
+    await page.waitForTimeout(2000);
     
     const currentUrl = await loginPage.getCurrentUrl();
     // Should either stay on login page or show error
@@ -112,12 +110,12 @@ test.describe('Login Functionality', () => {
     await context.setOffline(false);
   });
 
-  test('should validate email format @auth', async () => {
+  test('should validate email format @auth', async ({ page }) => {
     await loginPage.enterEmail('invalid-email');
     await loginPage.enterPassword('Password123!');
     await loginPage.clickSubmit();
     
-    await loginPage.page.waitForTimeout(1000);
+    await page.waitForTimeout(1000);
     
     // Should stay on login page due to validation
     const currentUrl = await loginPage.getCurrentUrl();

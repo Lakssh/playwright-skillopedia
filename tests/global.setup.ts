@@ -1,6 +1,4 @@
-import { chromium, FullConfig } from '@playwright/test';
-import { testUsers } from '../src/core/config/test-config';
-import { ROUTES } from '../src/core/config/constants';
+import { FullConfig } from '@playwright/test';
 import fs from 'fs';
 import path from 'path';
 
@@ -8,8 +6,7 @@ import path from 'path';
  * Global setup for Playwright tests
  * Creates authenticated browser states for different user roles
  */
-async function globalSetup(config: FullConfig): Promise<void> {
-  const baseURL = config.use?.baseURL || process.env.BASE_URL || 'https://skill-sprig.vercel.app';
+async function globalSetup(_config: FullConfig): Promise<void> {
   
   // Create .auth directory if it doesn't exist
   const authDir = path.join(__dirname, '../.auth');

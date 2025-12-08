@@ -37,7 +37,7 @@ export const test = base.extend<{
   /**
    * Page factory fixture
    */
-  pageFactory: async ({ page }, use) => {
+  pageFactory: async ({}, use) => {
     const factory = new PageFactory();
     await use(factory);
   },

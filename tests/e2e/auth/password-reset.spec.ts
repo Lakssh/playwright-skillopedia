@@ -8,9 +8,6 @@ test.describe('Password Reset Functionality', () => {
   });
 
   test('should display forgot password page @auth', async ({ page }) => {
-    // Check if we're on forgot password page or if it exists
-    const currentUrl = page.url();
-    
     // Try to find email input for password reset
     const emailInput = page.locator('input[type="email"], input[name="email"]').first();
     

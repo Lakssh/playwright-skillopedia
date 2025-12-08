@@ -13,9 +13,11 @@ export class WaitHelper {
   static async waitForElementStable(locator: Locator, timeout: number = TIMEOUTS.MEDIUM): Promise<void> {
     await locator.waitFor({ state: 'visible', timeout });
     // Wait a bit for animations to complete
-    await locator.evaluate((el) => {
+    await locator.evaluate(() => {
       return new Promise<void>((resolve) => {
+        // @ts-expect-error - requestAnimationFrame is available in browser context
         requestAnimationFrame(() => {
+          // @ts-expect-error - requestAnimationFrame is available in browser context
           requestAnimationFrame(() => resolve());
         });
       });

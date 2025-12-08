@@ -173,7 +173,7 @@ export class AssertionHelper {
    * @param expected - Expected array
    */
   static assertArraysEqual<T>(actual: T[], expected: T[]): void {
-    expect(actual).toEqual(expected);
+    expect(JSON.stringify(actual)).toBe(JSON.stringify(expected));
   }
 
   /**
@@ -182,7 +182,7 @@ export class AssertionHelper {
    * @param expected - Expected object
    */
   static assertObjectsEqual<T>(actual: T, expected: T): void {
-    expect(actual).toEqual(expected);
+    expect(JSON.stringify(actual)).toBe(JSON.stringify(expected));
   }
 
   /**

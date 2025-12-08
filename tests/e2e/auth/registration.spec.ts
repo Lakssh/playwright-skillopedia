@@ -18,18 +18,18 @@ test.describe('Registration Functionality', () => {
     expect(title).toBeTruthy();
   });
 
-  test('should show validation error for empty fields @auth', async () => {
+  test('should show validation error for empty fields @auth', async ({ page }) => {
     await registerPage.clickSubmit();
     
     // Wait for validation
-    await registerPage.page.waitForTimeout(1000);
+    await page.waitForTimeout(1000);
     
     // Should stay on registration page
     const currentUrl = await registerPage.getCurrentUrl();
     expect(currentUrl).toMatch(/register|signup|sign-up/i);
   });
 
-  test('should show error for invalid email format @auth', async () => {
+  test('should show error for invalid email format @auth', async ({ page }) => {
     const user = UserFactory.createStudent();
     
     await registerPage.enterFirstName(user.firstName);
@@ -38,7 +38,7 @@ test.describe('Registration Functionality', () => {
     await registerPage.enterPassword(user.password);
     await registerPage.clickSubmit();
     
-    await registerPage.page.waitForTimeout(1000);
+    await page.waitForTimeout(1000);
     
     // Should stay on registration page
     const currentUrl = await registerPage.getCurrentUrl();
@@ -61,7 +61,7 @@ test.describe('Registration Functionality', () => {
     
     await registerPage.clickSubmit();
     
-    await registerPage.page.waitForTimeout(1000);
+    await page.waitForTimeout(1000);
     
     // Should stay on registration page or show error
     const currentUrl = await registerPage.getCurrentUrl();
@@ -82,7 +82,7 @@ test.describe('Registration Functionality', () => {
       await registerPage.enterConfirmPassword('DifferentPassword123!');
       await registerPage.clickSubmit();
       
-      await registerPage.page.waitForTimeout(1000);
+      await page.waitForTimeout(1000);
       
       // Should stay on registration page
       const currentUrl = await registerPage.getCurrentUrl();
@@ -133,7 +133,7 @@ test.describe('Registration Functionality', () => {
     }
   });
 
-  test('should enforce password requirements @auth', async () => {
+  test('should enforce password requirements @auth', async ({ page }) => {
     const user = UserFactory.createStudent();
     
     // Try various weak passwords
@@ -146,15 +146,15 @@ test.describe('Registration Functionality', () => {
       await registerPage.enterPassword(weakPassword);
       await registerPage.clickSubmit();
       
-      await registerPage.page.waitForTimeout(1000);
+      await page.waitForTimeout(1000);
       
       // Should stay on registration page
       const currentUrl = await registerPage.getCurrentUrl();
       expect(currentUrl).toMatch(/register|signup|sign-up/i);
       
       // Clear fields for next iteration
-      await registerPage.page.reload();
-      await registerPage.page.waitForLoadState('domcontentloaded');
+      await page.reload();
+      await page.waitForLoadState('domcontentloaded');
     }
   });
 });

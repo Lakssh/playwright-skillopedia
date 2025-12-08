@@ -35,7 +35,10 @@ test.describe('Homepage Visual Tests', () => {
 
   test('should display footer correctly @visual', async ({ page }) => {
     // Scroll to bottom
-    await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+    await page.evaluate(() => {
+      // @ts-expect-error - window and document are available in browser context
+      window.scrollTo(0, document.body.scrollHeight);
+    });
     await page.waitForTimeout(1000);
     
     // Look for footer element
@@ -76,7 +79,7 @@ test.describe('Homepage Visual Tests', () => {
     }
   });
 
-  test('should be responsive on mobile viewport @visual', async ({ page, viewport }) => {
+  test('should be responsive on mobile viewport @visual', async ({ page }) => {
     // Set mobile viewport
     await page.setViewportSize({ width: 375, height: 667 });
     await page.waitForTimeout(1000);
