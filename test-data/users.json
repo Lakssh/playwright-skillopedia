@@ -1,0 +1,25 @@
+{
+  "admin": {
+    "email": "admin@test.com",
+    "password": "Admin@123",
+    "firstName": "Admin",
+    "lastName": "User",
+    "role": "Super Admin"
+  },
+  "mentor": {
+    "email": "mentor@test.com",
+    "password": "Mentor@123",
+    "firstName": "John",
+    "lastName": "Mentor",
+    "role": "Tutor/Mentor",
+    "skills": ["JavaScript", "React", "Node.js", "TypeScript"],
+    "bio": "Experienced full-stack developer with 10+ years of experience"
+  },
+  "student": {
+    "email": "student@test.com",
+    "password": "Student@123",
+    "firstName": "Jane",
+    "lastName": "Student",
+    "role": "Student/Springer"
+  }
+}

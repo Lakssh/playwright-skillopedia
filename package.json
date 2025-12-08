@@ -1,0 +1,57 @@
+{
+  "name": "playwright-skillopedia",
+  "version": "1.0.0",
+  "description": "Enterprise-grade Playwright automation framework for SkillSprig application",
+  "main": "index.js",
+  "scripts": {
+    "test": "playwright test",
+    "test:headed": "playwright test --headed",
+    "test:ui": "playwright test --ui",
+    "test:debug": "playwright test --debug",
+    "test:smoke": "playwright test --grep @smoke",
+    "test:auth": "playwright test tests/e2e/auth",
+    "test:admin": "playwright test tests/e2e/admin",
+    "test:mentor": "playwright test tests/e2e/mentor",
+    "test:student": "playwright test tests/e2e/student",
+    "test:api": "playwright test tests/api",
+    "test:visual": "playwright test tests/visual",
+    "test:a11y": "playwright test tests/accessibility",
+    "test:perf": "playwright test tests/performance",
+    "report": "playwright show-report",
+    "codegen": "playwright codegen https://skill-sprig.vercel.app",
+    "lint": "eslint . --ext .ts",
+    "lint:fix": "eslint . --ext .ts --fix",
+    "format": "prettier --write \"src/**/*.ts\" \"tests/**/*.ts\"",
+    "format:check": "prettier --check \"src/**/*.ts\" \"tests/**/*.ts\"",
+    "type-check": "tsc --noEmit"
+  },
+  "keywords": [
+    "playwright",
+    "typescript",
+    "automation",
+    "testing",
+    "e2e",
+    "framework"
+  ],
+  "author": "SkillSprig QA Team",
+  "license": "MIT",
+  "devDependencies": {
+    "@playwright/test": "^1.48.0",
+    "@types/node": "^22.0.0",
+    "@typescript-eslint/eslint-plugin": "^8.0.0",
+    "@typescript-eslint/parser": "^8.0.0",
+    "allure-playwright": "^3.0.0",
+    "axe-playwright": "^2.0.0",
+    "dotenv": "^16.4.0",
+    "eslint": "^8.57.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-playwright": "^1.6.0",
+    "faker": "^5.5.3",
+    "@faker-js/faker": "^9.0.0",
+    "prettier": "^3.3.0",
+    "typescript": "^5.5.0"
+  },
+  "dependencies": {
+    "winston": "^3.14.0"
+  }
+}
