@@ -1,6 +1,6 @@
 import { Page, Locator } from '@playwright/test';
-import { BasePage } from '../../core/base/BasePage';
-import { ROUTES } from '../../core/config/constants';
+import { ROUTES } from '../../../test-data/constants';
+import { BasePage } from '@core/base/BasePage';
 
 /**
  * LoginPage - Page Object Model for login functionality
@@ -32,8 +32,8 @@ export class LoginPage extends BasePage {
    * Navigate to login page
    */
   async goto(): Promise<LoginPage> {
-    await this.navigate(ROUTES.LOGIN);
-    await this.waitForPageLoad();
+    await this.browser().navigate(ROUTES.LOGIN);
+    await this.browser().waitForPageLoad();
     return this;
   }
 
@@ -43,9 +43,9 @@ export class LoginPage extends BasePage {
    * @param password - User password
    */
   async login(email: string, password: string): Promise<LoginPage> {
-    await this.fill(this.emailInput, email);
-    await this.fill(this.passwordInput, password);
-    await this.click(this.submitButton);
+    await this.browser().fill(this.emailInput, email);
+    await this.browser().fill(this.passwordInput, password);
+    await this.browser().click(this.submitButton);
     return this;
   }
 
@@ -54,7 +54,7 @@ export class LoginPage extends BasePage {
    * @param email - Email address
    */
   async enterEmail(email: string): Promise<LoginPage> {
-    await this.fill(this.emailInput, email);
+    await this.browser().fill(this.emailInput, email);
     return this;
   }
 
@@ -63,7 +63,7 @@ export class LoginPage extends BasePage {
    * @param password - Password
    */
   async enterPassword(password: string): Promise<LoginPage> {
-    await this.fill(this.passwordInput, password);
+    await this.browser().fill(this.passwordInput, password);
     return this;
   }
 
@@ -71,51 +71,51 @@ export class LoginPage extends BasePage {
    * Click submit button
    */
   async clickSubmit(): Promise<void> {
-    await this.click(this.submitButton);
+    await this.browser().click(this.submitButton);
   }
 
   /**
    * Click forgot password link
    */
   async clickForgotPassword(): Promise<void> {
-    await this.click(this.forgotPasswordLink);
+    await this.browser().click(this.forgotPasswordLink);
   }
 
   /**
    * Click register link
    */
   async clickRegister(): Promise<void> {
-    await this.click(this.registerLink);
+    await this.browser().click(this.registerLink);
   }
 
   /**
    * Get error message text
    */
   async getErrorMessage(): Promise<string> {
-    await this.waitForVisible(this.errorMessage);
-    return await this.getText(this.errorMessage);
+    await this.browser().waitForVisible(this.errorMessage);
+    return await this.browser().getText(this.errorMessage);
   }
 
   /**
    * Get success message text
    */
   async getSuccessMessage(): Promise<string> {
-    await this.waitForVisible(this.successMessage);
-    return await this.getText(this.successMessage);
+    await this.browser().waitForVisible(this.successMessage);
+    return await this.browser().getText(this.successMessage);
   }
 
   /**
    * Check if error message is displayed
    */
   async isErrorDisplayed(): Promise<boolean> {
-    return await this.isVisible(this.errorMessage);
+    return await this.browser().isVisible(this.errorMessage);
   }
 
   /**
    * Check if success message is displayed
    */
   async isSuccessDisplayed(): Promise<boolean> {
-    return await this.isVisible(this.successMessage);
+    return await this.browser().isVisible(this.successMessage);
   }
 
   /**
@@ -129,8 +129,8 @@ export class LoginPage extends BasePage {
    * Verify login page is displayed
    */
   async verifyLoginPageDisplayed(): Promise<void> {
-    await this.expectToBeVisible(this.emailInput);
-    await this.expectToBeVisible(this.passwordInput);
-    await this.expectToBeVisible(this.submitButton);
+    await this.browser().expectToBeVisible(this.emailInput);
+    await this.browser().expectToBeVisible(this.passwordInput);
+    await this.browser().expectToBeVisible(this.submitButton);
   }
 }

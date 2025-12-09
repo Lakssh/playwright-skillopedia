@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { DataHelper } from '../../../src/core/helpers/DataHelper';
-import { ROUTES } from '../../../src/core/config/constants';
+import { ROUTES } from '../../../test-data/constants';
 
 test.describe('Password Reset Functionality', () => {
   test.beforeEach(async ({ page }) => {

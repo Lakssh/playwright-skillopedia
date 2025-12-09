@@ -1,5 +1,5 @@
 import { test as base, Page } from '@playwright/test';
-import { ROUTES } from '../config/constants';
+import { ROUTES } from '../../../test-data/constants';
 import path from 'path';
 
 export type AuthFixtures = {

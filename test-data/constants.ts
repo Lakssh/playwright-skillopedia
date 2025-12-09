@@ -31,8 +31,8 @@ export const TEST_TAGS = {
 
 export const ROUTES = {
   HOME: '/',
-  LOGIN: '/login',
-  REGISTER: '/register',
+  LOGIN: '/auth/signin',
+  REGISTER: '/auth/signup',
   FORGOT_PASSWORD: '/forgot-password',
   SELECT_ROLE: '/select-role',
   

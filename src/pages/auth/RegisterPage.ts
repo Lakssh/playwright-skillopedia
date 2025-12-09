@@ -1,6 +1,6 @@
 import { Page, Locator } from '@playwright/test';
-import { BasePage } from '../../core/base/BasePage';
-import { ROUTES } from '../../core/config/constants';
+import { ROUTES } from '../../../test-data/constants';
+import { BasePage } from '@core/base/BasePage';
 
 /**
  * RegisterPage - Page Object Model for registration functionality
@@ -37,8 +37,8 @@ export class RegisterPage extends BasePage {
    * Navigate to register page
    */
   async goto(): Promise<RegisterPage> {
-    await this.navigate(ROUTES.REGISTER);
-    await this.waitForPageLoad();
+    await this.browser().navigate(ROUTES.REGISTER);
+    await this.browser().waitForPageLoad();
     return this;
   }
 
@@ -53,21 +53,21 @@ export class RegisterPage extends BasePage {
     password: string;
     confirmPassword?: string;
   }): Promise<RegisterPage> {
-    await this.fill(this.firstNameInput, userData.firstName);
-    await this.fill(this.lastNameInput, userData.lastName);
-    await this.fill(this.emailInput, userData.email);
-    await this.fill(this.passwordInput, userData.password);
+    await this.browser().fill(this.firstNameInput, userData.firstName);
+    await this.browser().fill(this.lastNameInput, userData.lastName);
+    await this.browser().fill(this.emailInput, userData.email);
+    await this.browser().fill(this.passwordInput, userData.password);
     
     if (userData.confirmPassword) {
-      await this.fill(this.confirmPasswordInput, userData.confirmPassword);
+      await this.browser().fill(this.confirmPasswordInput, userData.confirmPassword);
     }
     
     // Accept terms if checkbox exists
-    if (await this.isVisible(this.termsCheckbox)) {
-      await this.click(this.termsCheckbox);
+    if (await this.browser().isVisible(this.termsCheckbox)) {
+      await this.browser().click(this.termsCheckbox);
     }
     
-    await this.click(this.submitButton);
+    await this.browser().click(this.submitButton);
     return this;
   }
 
@@ -75,7 +75,7 @@ export class RegisterPage extends BasePage {
    * Enter first name
    */
   async enterFirstName(firstName: string): Promise<RegisterPage> {
-    await this.fill(this.firstNameInput, firstName);
+    await this.browser().fill(this.firstNameInput, firstName);
     return this;
   }
 
@@ -83,7 +83,7 @@ export class RegisterPage extends BasePage {
    * Enter last name
    */
   async enterLastName(lastName: string): Promise<RegisterPage> {
-    await this.fill(this.lastNameInput, lastName);
+    await this.browser().fill(this.lastNameInput, lastName);
     return this;
   }
 
@@ -91,7 +91,7 @@ export class RegisterPage extends BasePage {
    * Enter email
    */
   async enterEmail(email: string): Promise<RegisterPage> {
-    await this.fill(this.emailInput, email);
+    await this.browser().fill(this.emailInput, email);
     return this;
   }
 
@@ -99,7 +99,7 @@ export class RegisterPage extends BasePage {
    * Enter password
    */
   async enterPassword(password: string): Promise<RegisterPage> {
-    await this.fill(this.passwordInput, password);
+    await this.browser().fill(this.passwordInput, password);
     return this;
   }
 
@@ -107,7 +107,7 @@ export class RegisterPage extends BasePage {
    * Enter confirm password
    */
   async enterConfirmPassword(password: string): Promise<RegisterPage> {
-    await this.fill(this.confirmPasswordInput, password);
+    await this.browser().fill(this.confirmPasswordInput, password);
     return this;
   }
 
@@ -115,8 +115,8 @@ export class RegisterPage extends BasePage {
    * Accept terms and conditions
    */
   async acceptTerms(): Promise<RegisterPage> {
-    if (await this.isVisible(this.termsCheckbox)) {
-      await this.click(this.termsCheckbox);
+    if (await this.browser().isVisible(this.termsCheckbox)) {
+      await this.browser().click(this.termsCheckbox);
     }
     return this;
   }
@@ -125,29 +125,29 @@ export class RegisterPage extends BasePage {
    * Click submit button
    */
   async clickSubmit(): Promise<void> {
-    await this.click(this.submitButton);
+    await this.browser().click(this.submitButton);
   }
 
   /**
    * Click login link
    */
   async clickLogin(): Promise<void> {
-    await this.click(this.loginLink);
+    await this.browser().click(this.loginLink);
   }
 
   /**
    * Get error message text
    */
   async getErrorMessage(): Promise<string> {
-    await this.waitForVisible(this.errorMessage);
-    return await this.getText(this.errorMessage);
+    await this.browser().waitForVisible(this.errorMessage);
+    return await this.browser().getText(this.errorMessage);
   }
 
   /**
    * Get success message text
    */
   async getSuccessMessage(): Promise<string> {
-    await this.waitForVisible(this.successMessage);
+    await this.browser().waitForVisible(this.successMessage);
     return await this.getText(this.successMessage);
   }
 
@@ -155,7 +155,7 @@ export class RegisterPage extends BasePage {
    * Check if error message is displayed
    */
   async isErrorDisplayed(): Promise<boolean> {
-    return await this.isVisible(this.errorMessage);
+    return await this.browserisVisible(this.errorMessage);
   }
 
   /**
@@ -169,8 +169,8 @@ export class RegisterPage extends BasePage {
    * Verify register page is displayed
    */
   async verifyRegisterPageDisplayed(): Promise<void> {
-    await this.expectToBeVisible(this.emailInput);
-    await this.expectToBeVisible(this.passwordInput);
-    await this.expectToBeVisible(this.submitButton);
+    await this.browser().expectToBeVisible(this.emailInput);
+    await this.browser().expectToBeVisible(this.passwordInput);
+    await this.browser().expectToBeVisible(this.submitButton);
   }
 }

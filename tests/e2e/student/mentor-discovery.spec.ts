@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { ROUTES } from '../../../src/core/config/constants';
+import { ROUTES } from '../../../test-data/constants';
 
 test.describe('Mentor Discovery', () => {
   test.beforeEach(async ({ page }) => {

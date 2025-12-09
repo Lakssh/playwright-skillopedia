@@ -1,5 +1,5 @@
 import { Page, Locator } from '@playwright/test';
-import { TIMEOUTS } from '../config/constants';
+import { TIMEOUTS } from '../../../test-data/constants';
 
 /**
  * WaitHelper - Custom wait utilities

@@ -13,7 +13,7 @@ test.describe('Login Functionality', () => {
   test('should display login page correctly @smoke @auth', async () => {
     await loginPage.verifyLoginPageDisplayed();
     
-    const title = await loginPage.getTitle();
+    const title = await loginPage.browser().getTitle();
     expect(title).toBeTruthy();
   });
 
@@ -25,7 +25,7 @@ test.describe('Login Functionality', () => {
     await page.waitForTimeout(1000);
     
     // The form should not submit successfully
-    const currentUrl = await loginPage.getCurrentUrl();
+    const currentUrl = await loginPage.browser().getCurrentUrl();
     expect(currentUrl).toContain('/login');
   });
 
@@ -37,7 +37,7 @@ test.describe('Login Functionality', () => {
     await page.waitForTimeout(1000);
     
     // The form should not submit successfully
-    const currentUrl = await loginPage.getCurrentUrl();
+    const currentUrl = await loginPage.browser().getCurrentUrl();
     expect(currentUrl).toContain('/login');
   });
 
@@ -50,7 +50,7 @@ test.describe('Login Functionality', () => {
     // Wait for error message or stay on login page
     await page.waitForTimeout(2000);
     
-    const currentUrl = await loginPage.getCurrentUrl();
+    const currentUrl = await loginPage.browser().getCurrentUrl();
     // Should either stay on login page or show error
     expect(currentUrl).toContain('/login');
   });
@@ -65,7 +65,7 @@ test.describe('Login Functionality', () => {
       // Wait for navigation
       await page.waitForTimeout(2000);
       
-      const currentUrl = await loginPage.getCurrentUrl();
+      const currentUrl = await loginPage.browser().getCurrentUrl();
       // Should navigate to forgot password or reset password page
       expect(currentUrl).toMatch(/forgot|reset/i);
     } else {
@@ -83,7 +83,7 @@ test.describe('Login Functionality', () => {
       // Wait for navigation
       await page.waitForTimeout(2000);
       
-      const currentUrl = await loginPage.getCurrentUrl();
+      const currentUrl = await loginPage.browser().getCurrentUrl();
       // Should navigate to registration page
       expect(currentUrl).toMatch(/register|signup|sign-up/i);
     } else {
@@ -103,7 +103,7 @@ test.describe('Login Functionality', () => {
     await page.waitForTimeout(2000);
     
     // Should stay on login page or show network error
-    const currentUrl = await loginPage.getCurrentUrl();
+    const currentUrl = await loginPage.browser().getCurrentUrl();
     expect(currentUrl).toContain('/login');
     
     // Restore network
@@ -118,7 +118,7 @@ test.describe('Login Functionality', () => {
     await page.waitForTimeout(1000);
     
     // Should stay on login page due to validation
-    const currentUrl = await loginPage.getCurrentUrl();
+    const currentUrl = await loginPage.browser().getCurrentUrl();
     expect(currentUrl).toContain('/login');
   });
 });

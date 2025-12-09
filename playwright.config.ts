@@ -46,7 +46,7 @@ export default defineConfig({
   /* Shared settings for all the projects below */
   use: {
     /* Base URL to use in actions like `await page.goto('/')` */
-    baseURL: process.env.BASE_URL || 'https://skill-sprig.vercel.app',
+    baseURL: process.env.BASE_URL || 'https://skillopedia.app',
 
     /* Collect trace when retrying the failed test */
     trace: 'on-first-retry',
