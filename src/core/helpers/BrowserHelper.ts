@@ -1,4 +1,5 @@
 import { Page, Locator, expect } from '@playwright/test';
+import { LogHelper } from './LogHelper';
 
 /**
  * BasePage -  base class for all page objects
@@ -19,29 +20,55 @@ export  class BrowserHelper {
    * @param options - Navigation options
    */
   async navigate(path: string = '', options?: { waitUntil?: 'load' | 'domcontentloaded' | 'networkidle' }): Promise<void> {
-    const url = path.startsWith('http') ? path : `${this.baseURL}${path}`;
-    await this.page.goto(url, { waitUntil: options?.waitUntil || 'domcontentloaded' });
+    try {
+      const url = path.startsWith('http') ? path : `${this.baseURL}${path}`;
+      await this.page.goto(url, { waitUntil: options?.waitUntil || 'domcontentloaded' });
+      LogHelper.logCompleted(`Navigated to URL: ${url}`);
+    } catch (error) {
+      LogHelper.logFail(`Failed to navigate`, error);
+      throw error;
+    }
   }
 
   /**
    * Wait for the page to load completely
    */
   async waitForPageLoad(): Promise<void> {
-    await this.page.waitForLoadState('networkidle', { timeout: 30000 });
+    try {
+      await this.page.waitForLoadState('networkidle', { timeout: 30000 });
+      LogHelper.logCompleted(`Page loaded successfully (networkidle)`);
+    } catch (error) {
+      LogHelper.logFail(`Page load timeout`, error);
+      throw error;
+    }
   }
 
   /**
    * Get the page title
    */
   async getTitle(): Promise<string> {
-    return await this.page.title();
+    try {
+      const title = await this.page.title();
+      LogHelper.logCompleted(`Retrieved page title: "${title}"`);
+      return title;
+    } catch (error) {
+      LogHelper.logFail(`Failed to get page title`, error);
+      throw error;
+    }
   }
 
   /**
    * Get the current URL
    */
   async getCurrentUrl(): Promise<string> {
-    return this.page.url();
+    try {
+      const url = this.page.url();
+      LogHelper.logCompleted(`Retrieved current URL: ${url}`);
+      return url;
+    } catch (error) {
+      LogHelper.logFail(`Failed to get current URL`, error);
+      throw error;
+    }
   }
 
   /**
@@ -49,7 +76,14 @@ export  class BrowserHelper {
    * @param name - Name of the screenshot file
    */
   async takeScreenshot(name: string): Promise<Buffer> {
-    return await this.page.screenshot({ path: `screenshots/${name}.png`, fullPage: true });
+    try {
+      const screenshot = await this.page.screenshot({ path: `screenshots/${name}.png`, fullPage: true });
+      LogHelper.logCompleted(`Screenshot captured: ${name}.png`);
+      return screenshot;
+    } catch (error) {
+      LogHelper.logFail(`Failed to take screenshot`, error);
+      throw error;
+    }
   }
 
   /**
@@ -58,7 +92,13 @@ export  class BrowserHelper {
    * @param timeout - Optional timeout in milliseconds
    */
   async waitForVisible(locator: Locator, timeout?: number): Promise<void> {
-    await locator.waitFor({ state: 'visible', timeout });
+    try {
+      await locator.waitFor({ state: 'visible', timeout });
+      LogHelper.logCompleted(`Element became visible`);
+    } catch (error) {
+      LogHelper.logFail(`Element did not become visible`, error);
+      throw error;
+    }
   }
 
   /**
@@ -67,7 +107,13 @@ export  class BrowserHelper {
    * @param timeout - Optional timeout in milliseconds
    */
   async waitForHidden(locator: Locator, timeout?: number): Promise<void> {
-    await locator.waitFor({ state: 'hidden', timeout });
+    try {
+      await locator.waitFor({ state: 'hidden', timeout });
+      LogHelper.logCompleted(`Element became hidden`);
+    } catch (error) {
+      LogHelper.logFail(`Element did not become hidden`, error);
+      throw error;
+    }
   }
 
   /**
@@ -75,8 +121,14 @@ export  class BrowserHelper {
    * @param locator - The locator to click
    */
   async click(locator: Locator): Promise<void> {
-    await locator.waitFor({ state: 'visible' });
-    await locator.click();
+    try {
+      await locator.waitFor({ state: 'visible' });
+      await locator.click();
+      LogHelper.logCompleted(`Element clicked successfully`);
+    } catch (error) {
+      LogHelper.logFail(`Failed to click element`, error);
+      throw error;
+    }
   }
 
   /**
@@ -85,8 +137,14 @@ export  class BrowserHelper {
    * @param text - The text to fill
    */
   async fill(locator: Locator, text: string): Promise<void> {
-    await locator.waitFor({ state: 'visible' });
-    await locator.fill(text);
+    try {
+      await locator.waitFor({ state: 'visible' });
+      await locator.fill(text);
+      LogHelper.logCompleted(`Input field filled with text: "${text}"`);
+    } catch (error) {
+      LogHelper.logFail(`Failed to fill input field`, error);
+      throw error;
+    }
   }
 
   /**
@@ -96,8 +154,14 @@ export  class BrowserHelper {
    * @param delay - Delay between keystrokes in ms
    */
   async type(locator: Locator, text: string, delay: number = 100): Promise<void> {
-    await locator.waitFor({ state: 'visible' });
-    await locator.pressSequentially(text, { delay });
+    try {
+      await locator.waitFor({ state: 'visible' });
+      await locator.pressSequentially(text, { delay });
+      LogHelper.logCompleted(`Text typed into field: "${text}" (delay: ${delay}ms)`);
+    } catch (error) {
+      LogHelper.logFail(`Failed to type text`, error);
+      throw error;
+    }
   }
 
   /**
@@ -106,8 +170,14 @@ export  class BrowserHelper {
    * @param value - The value to select
    */
   async selectOption(locator: Locator, value: string | { label?: string; value?: string; index?: number }): Promise<void> {
-    await locator.waitFor({ state: 'visible' });
-    await locator.selectOption(value);
+    try {
+      await locator.waitFor({ state: 'visible' });
+      await locator.selectOption(value);
+      LogHelper.logCompleted(`Option selected: ${JSON.stringify(value)}`);
+    } catch (error) {
+      LogHelper.logFail(`Failed to select option`, error);
+      throw error;
+    }
   }
 
   /**
@@ -115,8 +185,15 @@ export  class BrowserHelper {
    * @param locator - The locator to get text from
    */
   async getText(locator: Locator): Promise<string> {
-    await locator.waitFor({ state: 'visible' });
-    return (await locator.textContent()) || '';
+    try {
+      await locator.waitFor({ state: 'visible' });
+      const text = (await locator.textContent()) || '';
+      LogHelper.logCompleted(`Text retrieved: "${text}"`);
+      return text;
+    } catch (error) {
+      LogHelper.logFail(`Failed to get text`, error);
+      throw error;
+    }
   }
 
   /**
@@ -125,8 +202,11 @@ export  class BrowserHelper {
    */
   async isVisible(locator: Locator): Promise<boolean> {
     try {
-      return await locator.isVisible();
-    } catch {
+      const visible = await locator.isVisible();
+      LogHelper.logCompleted(`Element visibility check: ${visible}`);
+      return visible;
+    } catch (error) {
+      LogHelper.logError(`Element visibility check failed`, error);
       return false;
     }
   }
@@ -136,7 +216,14 @@ export  class BrowserHelper {
    * @param locator - The locator to check
    */
   async isEnabled(locator: Locator): Promise<boolean> {
-    return await locator.isEnabled();
+    try {
+      const enabled = await locator.isEnabled();
+      LogHelper.logCompleted(`Element enabled check: ${enabled}`);
+      return enabled;
+    } catch (error) {
+      LogHelper.logFail(`Failed to check if element is enabled`, error);
+      throw error;
+    }
   }
 
   /**
@@ -144,21 +231,39 @@ export  class BrowserHelper {
    * @param pattern - URL pattern to match
    */
   async waitForURL(pattern: string | RegExp): Promise<void> {
-    await this.page.waitForURL(pattern);
+    try {
+      await this.page.waitForURL(pattern);
+      LogHelper.logCompleted(`URL matched pattern: ${pattern}`);
+    } catch (error) {
+      LogHelper.logFail(`URL did not match pattern ${pattern}`, error);
+      throw error;
+    }
   }
 
   /**
    * Reload the current page
    */
   async reload(): Promise<void> {
-    await this.page.reload();
+    try {
+      await this.page.reload();
+      LogHelper.logCompleted(`Page reloaded successfully`);
+    } catch (error) {
+      LogHelper.logFail(`Failed to reload page`, error);
+      throw error;
+    }
   }
 
   /**
    * Go back in browser history
    */
   async goBack(): Promise<void> {
-    await this.page.goBack();
+    try {
+      await this.page.goBack();
+      LogHelper.logCompleted(`Navigated back in browser history`);
+    } catch (error) {
+      LogHelper.logFail(`Failed to go back`, error);
+      throw error;
+    }
   }
 
   /**
@@ -166,7 +271,13 @@ export  class BrowserHelper {
    * @param locator - The locator to scroll to
    */
   async scrollToElement(locator: Locator): Promise<void> {
-    await locator.scrollIntoViewIfNeeded();
+    try {
+      await locator.scrollIntoViewIfNeeded();
+      LogHelper.logCompleted(`Scrolled to element`);
+    } catch (error) {
+      LogHelper.logFail(`Failed to scroll to element`, error);
+      throw error;
+    }
   }
 
   /**
@@ -174,7 +285,13 @@ export  class BrowserHelper {
    * @param locator - The locator to hover over
    */
   async hover(locator: Locator): Promise<void> {
-    await locator.hover();
+    try {
+      await locator.hover();
+      LogHelper.logCompleted(`Hovered over element`);
+    } catch (error) {
+      LogHelper.logFail(`Failed to hover over element`, error);
+      throw error;
+    }
   }
 
   /**
@@ -182,7 +299,13 @@ export  class BrowserHelper {
    * @param locator - The locator to double click
    */
   async doubleClick(locator: Locator): Promise<void> {
-    await locator.dblclick();
+    try {
+      await locator.dblclick();
+      LogHelper.logCompleted(`Double clicked element`);
+    } catch (error) {
+      LogHelper.logFail(`Failed to double click element`, error);
+      throw error;
+    }
   }
 
   /**
@@ -190,7 +313,13 @@ export  class BrowserHelper {
    * @param locator - The locator to right click
    */
   async rightClick(locator: Locator): Promise<void> {
-    await locator.click({ button: 'right' });
+    try {
+      await locator.click({ button: 'right' });
+      LogHelper.logCompleted(`Right clicked element`);
+    } catch (error) {
+      LogHelper.logFail(`Failed to right click element`, error);
+      throw error;
+    }
   }
 
   /**
@@ -198,7 +327,13 @@ export  class BrowserHelper {
    * @param locator - The locator to check
    */
   async expectToBeVisible(locator: Locator): Promise<void> {
-    await expect(locator).toBeVisible();
+    try {
+      await expect(locator).toBeVisible();
+      LogHelper.logCompleted(`Element is visible (assertion passed)`);
+    } catch (error) {
+      LogHelper.logFail(`Element should be visible`, error);
+      throw error;
+    }
   }
 
   /**
@@ -207,7 +342,13 @@ export  class BrowserHelper {
    * @param text - Expected text
    */
   async expectToHaveText(locator: Locator, text: string | RegExp): Promise<void> {
-    await expect(locator).toHaveText(text);
+    try {
+      await expect(locator).toHaveText(text);
+      LogHelper.logCompleted(`Element has expected text: "${text}"`);
+    } catch (error) {
+      LogHelper.logFail(`Element should have text "${text}"`, error);
+      throw error;
+    }
   }
 
   /**
@@ -216,14 +357,26 @@ export  class BrowserHelper {
    * @param text - Expected text to contain
    */
   async expectToContainText(locator: Locator, text: string | RegExp): Promise<void> {
-    await expect(locator).toContainText(text);
+    try {
+      await expect(locator).toContainText(text);
+      LogHelper.logCompleted(`Element contains expected text: "${text}"`);
+    } catch (error) {
+      LogHelper.logFail(`Element should contain text "${text}"`, error);
+      throw error;
+    }
   }
 
   /**
    * Wait for network to be idle
    */
   async waitForNetworkIdle(): Promise<void> {
-    await this.page.waitForLoadState('networkidle');
+    try {
+      await this.page.waitForLoadState('networkidle');
+      LogHelper.logCompleted(`Network is idle`);
+    } catch (error) {
+      LogHelper.logFail(`Failed to wait for network idle`, error);
+      throw error;
+    }
   }
 
   /**
@@ -232,7 +385,14 @@ export  class BrowserHelper {
    * @param arg - Argument to pass to the script
    */
   async evaluate<R>(script: () => R | Promise<R>): Promise<R> {
-    return await this.page.evaluate(script);
+    try {
+      const result = await this.page.evaluate(script);
+      LogHelper.logCompleted(`JavaScript executed successfully | Result: ${JSON.stringify(result)}`);
+      return result;
+    } catch (error) {
+      LogHelper.logFail(`Failed to execute JavaScript`, error);
+      throw error;
+    }
   }
 
   /**
@@ -241,7 +401,14 @@ export  class BrowserHelper {
    * @param childSelector - Child selector relative to container
    */
   protected getLocatorWithin(containerSelector: string, childSelector: string): Locator {
-    return this.page.locator(containerSelector).locator(childSelector);
+    try {
+      const locator = this.page.locator(containerSelector).locator(childSelector);
+      LogHelper.logCompleted(`Locator created for container "${containerSelector}" > "${childSelector}"`);
+      return locator;
+    } catch (error) {
+      LogHelper.logFail(`Failed to create locator`, error);
+      throw error;
+    }
   }
 
   /**
@@ -250,7 +417,13 @@ export  class BrowserHelper {
    * @param childSelector - Child selector relative to container
    */
   protected async clickWithin(containerSelector: string, childSelector: string): Promise<void> {
-    await this.getLocatorWithin(containerSelector, childSelector).click();
+    try {
+      await this.getLocatorWithin(containerSelector, childSelector).click();
+      LogHelper.logCompleted(`Clicked child element in container "${containerSelector}" > "${childSelector}"`);
+    } catch (error) {
+      LogHelper.logFail(`Failed to click child element`, error);
+      throw error;
+    }
   }
 
   /**
@@ -259,7 +432,14 @@ export  class BrowserHelper {
    * @param childSelector - Child selector relative to container
    */
   protected async getTextWithin(containerSelector: string, childSelector: string): Promise<string> {
-    return (await this.getLocatorWithin(containerSelector, childSelector).textContent()) || '';
+    try {
+      const text = (await this.getLocatorWithin(containerSelector, childSelector).textContent()) || '';
+      LogHelper.logCompleted(`Retrieved text from child: "${text}"`);
+      return text;
+    } catch (error) {
+      LogHelper.logFail(`Failed to get text from child element`, error);
+      throw error;
+    }
   }
 
   /**
@@ -267,7 +447,13 @@ export  class BrowserHelper {
    * @param selector - Selector for the container
    */
   async waitForContainerVisible(selector: string): Promise<void> {
-    await this.page.locator(selector).waitFor({ state: 'visible' });
+    try {
+      await this.page.locator(selector).waitFor({ state: 'visible' });
+      LogHelper.logCompleted(`Container "${selector}" became visible`);
+    } catch (error) {
+      LogHelper.logFail(`Container "${selector}" did not become visible`, error);
+      throw error;
+    }
   }
 
   /**
@@ -275,7 +461,13 @@ export  class BrowserHelper {
    * @param selector - Selector for the container
    */
   async waitForContainerHidden(selector: string): Promise<void> {
-    await this.page.locator(selector).waitFor({ state: 'hidden' });
+    try {
+      await this.page.locator(selector).waitFor({ state: 'hidden' });
+      LogHelper.logCompleted(`Container "${selector}" became hidden`);
+    } catch (error) {
+      LogHelper.logFail(`Container "${selector}" did not become hidden`, error);
+      throw error;
+    }
   }
 
   /**
@@ -284,8 +476,11 @@ export  class BrowserHelper {
    */
   async isContainerVisible(selector: string): Promise<boolean> {
     try {
-      return await this.page.locator(selector).isVisible();
-    } catch {
+      const visible = await this.page.locator(selector).isVisible();
+      LogHelper.logCompleted(`Container "${selector}" visibility check: ${visible}`);
+      return visible;
+    } catch (error) {
+      LogHelper.logError(`Container visibility check failed for "${selector}"`, error);
       return false;
     }
   }

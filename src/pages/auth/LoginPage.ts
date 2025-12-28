@@ -7,36 +7,61 @@ import { BasePage } from '@core/base/BasePage';
  */
 export class LoginPage extends BasePage {
   // Locators
-  private readonly emailInput: Locator;
-  private readonly passwordInput: Locator;
-  private readonly submitButton: Locator;
-  private readonly forgotPasswordLink: Locator;
-  private readonly registerLink: Locator;
-  private readonly errorMessage: Locator;
-  private readonly successMessage: Locator;
+  readonly emailInput: Locator;
+  readonly passwordInput: Locator;
+  readonly submitButton: Locator;
+  readonly forgotPasswordLink: Locator;
+  readonly registerLink: Locator;
+  readonly errorMessage: Locator;
+  readonly successMessage: Locator;
+  readonly signInButton: Locator;
+  readonly cookiesAcceptButton: Locator;
+  readonly signOutButton: Locator;
 
   constructor(page: Page) {
     super(page);
     
-    // Initialize locators with multiple strategies for self-healing
-    this.emailInput = page.locator('input[type="email"], input[name="email"], input[placeholder*="email" i]').first();
-    this.passwordInput = page.locator('input[type="password"], input[name="password"]').first();
-    this.submitButton = page.locator('button[type="submit"], button:has-text("Sign in"), button:has-text("Login")').first();
-    this.forgotPasswordLink = page.locator('a:has-text("Forgot"), a:has-text("Reset password")').first();
-    this.registerLink = page.locator('a:has-text("Sign up"), a:has-text("Register"), a:has-text("Create account")').first();
-    this.errorMessage = page.locator('[role="alert"], .error, .error-message').first();
-    this.successMessage = page.locator('.success, .success-message').first();
+    // Initialize locators with accessibility-based selectors for reliability
+    this.signInButton = page.getByRole('link', { name: 'Sign In' });
+    this.emailInput = page.getByRole('textbox', { name: 'Email address' });
+    this.passwordInput = page.getByRole('textbox', { name: 'Password' });
+    this.submitButton = page.getByRole('button', { name: 'Sign in' });
+    this.forgotPasswordLink = page.getByRole('link', { name: 'Forgot your password?' });
+    this.registerLink = page.getByRole('link', { name: 'Sign up free' });
+    this.errorMessage = page.getByRole('alert').or(page.locator('.error, .error-message, [data-testid="error-message"]')).first();
+    this.successMessage = page.locator('.success, .success-message, [role="status"], [data-testid="success-message"]').first();
+    this.cookiesAcceptButton = page.getByRole('button', { name: 'Accept All' });
+    this.signOutButton = page.getByRole('button', { name: 'Sign Out' }).or(page.getByRole('link', { name: 'Sign Out' }));
+  
   }
 
   /**
    * Navigate to login page
    */
+
   async goto(): Promise<LoginPage> {
-    await this.browser().navigate(ROUTES.LOGIN);
+    await this.browser().navigate(ROUTES.HOME);
     await this.browser().waitForPageLoad();
+    await this.assertion().assertTitle(this.page, 'Skillopedia - Find Your Perfect Skill Mentor');
+    await this.signInButton.click();
+    await this.handleCookieConsent();    
     return this;
   }
 
+  /**
+   * Handle cookie consent banner if present
+   */
+
+  async handleCookieConsent(): Promise<void> {
+    try {
+      if (await this.cookiesAcceptButton.isVisible({ timeout: 2000 })) {
+        await this.cookiesAcceptButton.click();
+      }
+    } catch (error) {
+      // Cookie banner not present, continue
+    }
+  }
+    
   /**
    * Login with email and password
    * @param email - User email
@@ -122,7 +147,7 @@ export class LoginPage extends BasePage {
    * Wait for successful login (redirect away from login page)
    */
   async waitForLoginSuccess(): Promise<void> {
-    await this.page.waitForURL((url) => !url.pathname.includes('/login'), { timeout: 15000 });
+    await this.page.waitForURL((url) => url.pathname.includes('/dashboard'), { timeout: 15000 });
   }
 
   /**
@@ -133,4 +158,120 @@ export class LoginPage extends BasePage {
     await this.browser().expectToBeVisible(this.passwordInput);
     await this.browser().expectToBeVisible(this.submitButton);
   }
+
+    /**
+   * Verify user name and role are displayed after successful login
+  */
+  async verifyUserProfileDisplayed(userName : string, role: string): Promise<void> {
+    // Wait for dashboard page to fully load
+    await this.page.waitForLoadState('networkidle');
+    const userProfileButton = this.page.getByRole('button', { name: new RegExp(`.*${userName}.*`) });
+    const userNameDisplay = this.page.getByText(userName).nth(1);
+    const userRoleDisplay = this.page.getByText(role).nth(1);
+    
+    // Wait for profile button to be visible
+    await this.browser().expectToBeVisible(userProfileButton);
+    await this.browser().click(userProfileButton);
+    
+    // Wait for dropdown to open and verify elements
+    await this.browser().expectToBeVisible(userNameDisplay);
+    await this.browser().expectToBeVisible(userRoleDisplay);
+    
+    // Verify the actual text matches expected values
+    await this.assertion().assertHasText(userNameDisplay, userName);
+    await this.assertion().assertHasText(userRoleDisplay, role);
+    await this.browser().click(userProfileButton);
+  }
+
+  async signOut(userName : string): Promise<void> {
+    const userProfileButton = this.page.getByRole('button', { name: new RegExp(`.*${userName}.*`) });
+    await this.browser().click(userProfileButton);
+    await this.browser().click(this.signOutButton);
+    await this.page.waitForURL((url) => url.pathname.includes('/signin'), { timeout: 10000 });
+  }
+
+  /**
+ * Login using saved storage state (faster than manual login)
+ * @param role - User role: 'Skill Seeker', 'Skill Guide', or 'Skill Mentor'
+ * @param context - Browser context to apply storage state to
+ */
+async loginWithStorageState(role: string, context: any): Promise<LoginPage> {
+  try {
+    // Convert role to filename format
+    const roleFileName = role.toLowerCase().replace(' ', '-');
+    const storageStatePath = `./.auth/${roleFileName}-auth.json`;
+    
+    // Check if storage state file exists
+    const fs = require('fs');
+    if (!fs.existsSync(storageStatePath)) {
+      throw new Error(`Storage state file not found: ${storageStatePath}. Please run authentication setup first.`);
+    }
+    
+    // Load storage state
+    await context.addCookies(JSON.parse(fs.readFileSync(storageStatePath, 'utf-8')).cookies || []);
+    console.log(`✅ Loaded ${role} authentication state from: ${storageStatePath}`);
+    
+    // Navigate directly to dashboard since user is already authenticated
+    await this.page.goto('/dashboard-new');
+    await this.browser().waitForPageLoad();
+    
+    await this.waitForLoginSuccess();
+    
+    console.log(`✅ Successfully logged in as ${role} using storage state`);
+    return this;
+    
+  } catch (error) {
+    console.error(`❌ Failed to login with storage state: ${error}`);
+    console.log('🔄 Falling back to manual login...');
+    
+    // Fallback to manual login if storage state fails
+    return await this.goto();
+  }
+}
+
+/**
+ * Quick login method that tries storage state first, then falls back to manual login
+ * @param role - User role
+ * @param context - Browser context
+ * @param email - Email for fallback login
+ * @param password - Password for fallback login
+ */
+async quickLogin(role: string, context: any, email?: string, password?: string): Promise<LoginPage> {
+  try {
+    return await this.loginWithStorageState(role, context);
+  } catch (error) {
+    if (email && password) {
+      console.log('🔄 Storage state failed, using manual login...');
+      await this.goto();
+      await this.verifyLoginPageDisplayed();
+      await this.login(email, password);
+      await this.waitForLoginSuccess();
+      return this;
+    } else {
+      throw new Error(`Storage state login failed and no fallback credentials provided: ${error}`);
+    }
+  }
+}
+
+/**
+ * Save current authentication state for future use
+ * @param role - User role to save state for
+ * @param context - Browser context to save
+ */
+async saveAuthState(role: string, context: any): Promise<void> {
+  const roleFileName = role.toLowerCase().replace(' ', '-');
+  const storageStatePath = `.auth/${roleFileName}-auth.json`;
+  
+  // Ensure auth-states directory exists
+  const fs = require('fs');
+  const path = require('path');
+  const dir = path.dirname(storageStatePath);
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir, { recursive: true });
+  }
+  
+  await context.storageState({ path: storageStatePath });
+  console.log(`✅ Saved ${role} authentication state to: ${storageStatePath}`);
+}
+
 }

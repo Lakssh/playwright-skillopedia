@@ -3,6 +3,7 @@ import { BrowserHelper } from '../helpers/BrowserHelper';
 import { AssertionHelper } from '../helpers/AssertionHelper';
 import { DataHelper } from '@core/helpers/DataHelper';
 import { WaitHelper } from '@core/helpers/WaitHelper';
+import { ConfigHelper } from '@core/helpers/ConfigHelper';
 
 /**
  * BasePage - Abstract base class for all page objects
@@ -14,6 +15,7 @@ export abstract class BasePage {
   private assertionHelperInstance: AssertionHelper;
   private dataHelperInstance: DataHelper;
   private waitHelperInstance: WaitHelper;
+  private configHelperInstance: ConfigHelper;
 
   constructor(page: Page) {
     this.page = page;
@@ -21,6 +23,7 @@ export abstract class BasePage {
     this.assertionHelperInstance = new AssertionHelper();
     this.dataHelperInstance = new DataHelper();
     this.waitHelperInstance = new WaitHelper();
+    this.configHelperInstance = new ConfigHelper();
   }
 
   /**
@@ -53,5 +56,9 @@ export abstract class BasePage {
  */
   wait(): WaitHelper {
     return this.waitHelperInstance;
+  }
+
+  config(): ConfigHelper {
+    return this.configHelperInstance;
   }
 }

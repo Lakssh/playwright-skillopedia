@@ -1,262 +1,310 @@
 import { expect, Locator, Page } from '@playwright/test';
+import { LogHelper } from './LogHelper';
 
 /**
- * AssertionHelper - Custom assertion utilities
+ * AssertionHelper - Custom assertion utilities with detailed logging to console and Playwright report
  */
 export class AssertionHelper {
   /**
    * Assert URL contains text
-   * @param page - Page instance
-   * @param text - Text to check for in URL
    */
-  static async assertUrlContains(page: Page, text: string): Promise<void> {
-    const url = page.url();
-    expect(url).toContain(text);
-  }
-
-  /**
-   * Assert URL matches pattern
-   * @param page - Page instance
-   * @param pattern - Pattern to match
-   */
-  static async assertUrlMatches(page: Page, pattern: RegExp): Promise<void> {
-    const url = page.url();
-    expect(url).toMatch(pattern);
-  }
-
-  /**
-   * Assert page title
-   * @param page - Page instance
-   * @param expectedTitle - Expected page title
-   */
-  static async assertTitle(page: Page, expectedTitle: string): Promise<void> {
-    await expect(page).toHaveTitle(expectedTitle);
-  }
-
-  /**
-   * Assert element is visible
-   * @param locator - Element locator
-   */
-  static async assertVisible(locator: Locator): Promise<void> {
-    await expect(locator).toBeVisible();
-  }
-
-  /**
-   * Assert element is hidden
-   * @param locator - Element locator
-   */
-  static async assertHidden(locator: Locator): Promise<void> {
-    await expect(locator).toBeHidden();
-  }
-
-  /**
-   * Assert element is enabled
-   * @param locator - Element locator
-   */
-  static async assertEnabled(locator: Locator): Promise<void> {
-    await expect(locator).toBeEnabled();
-  }
-
-  /**
-   * Assert element is disabled
-   * @param locator - Element locator
-   */
-  static async assertDisabled(locator: Locator): Promise<void> {
-    await expect(locator).toBeDisabled();
-  }
-
-  /**
-   * Assert element has exact text
-   * @param locator - Element locator
-   * @param text - Expected text
-   */
-  static async assertHasText(locator: Locator, text: string | RegExp): Promise<void> {
-    await expect(locator).toHaveText(text);
-  }
-
-  /**
-   * Assert element contains text
-   * @param locator - Element locator
-   * @param text - Text to check for
-   */
-  static async assertContainsText(locator: Locator, text: string | RegExp): Promise<void> {
-    await expect(locator).toContainText(text);
-  }
-
-  /**
-   * Assert element has value
-   * @param locator - Element locator
-   * @param value - Expected value
-   */
-  static async assertHasValue(locator: Locator, value: string | RegExp): Promise<void> {
-    await expect(locator).toHaveValue(value);
-  }
-
-  /**
-   * Assert element has attribute
-   * @param locator - Element locator
-   * @param name - Attribute name
-   * @param value - Expected attribute value
-   */
-  static async assertHasAttribute(locator: Locator, name: string, value?: string | RegExp): Promise<void> {
-    if (value !== undefined) {
-      await expect(locator).toHaveAttribute(name, value);
-    } else {
-      await expect(locator).toHaveAttribute(name);
+  async assertUrlContains(page: Page, text: string): Promise<void> {
+    try {
+      const url = page.url();
+      expect(url).toContain(text);
+      LogHelper.logPass(`URL contains "${text}" | Current URL: ${url}`);
+    } catch (error) {
+      LogHelper.logFail(`URL should contain "${text}"`, error);
+      throw error;
     }
   }
 
-  /**
-   * Assert element has class
-   * @param locator - Element locator
-   * @param className - Class name
-   */
-  static async assertHasClass(locator: Locator, className: string | RegExp): Promise<void> {
-    await expect(locator).toHaveClass(className);
+  async assertUrlMatches(page: Page, pattern: RegExp): Promise<void> {
+    try {
+      const url = page.url();
+      expect(url).toMatch(pattern);
+      LogHelper.logPass(`URL matches pattern ${pattern} | Current URL: ${url}`);
+    } catch (error) {
+      LogHelper.logFail(`URL should match pattern ${pattern}`, error);
+      throw error;
+    }
   }
 
-  /**
-   * Assert element count
-   * @param locator - Element locator
-   * @param count - Expected count
-   */
-  static async assertCount(locator: Locator, count: number): Promise<void> {
-    await expect(locator).toHaveCount(count);
+  async assertTitle(page: Page, expectedTitle: string): Promise<void> {
+    try {
+      await expect(page).toHaveTitle(expectedTitle);
+      LogHelper.logPass(`Page title is "${expectedTitle}"`);
+    } catch (error) {
+      LogHelper.logFail(`Page title should be "${expectedTitle}"`, error);
+      throw error;
+    }
   }
 
-  /**
-   * Assert element is checked (checkbox/radio)
-   * @param locator - Element locator
-   */
-  static async assertChecked(locator: Locator): Promise<void> {
-    await expect(locator).toBeChecked();
+  async assertVisible(locator: Locator): Promise<void> {
+    try {
+      await expect(locator).toBeVisible();
+      LogHelper.logPass(`Element is visible`);
+    } catch (error) {
+      LogHelper.logFail(`Element should be visible`, error);
+      throw error;
+    }
   }
 
-  /**
-   * Assert element is not checked (checkbox/radio)
-   * @param locator - Element locator
-   */
-  static async assertNotChecked(locator: Locator): Promise<void> {
-    await expect(locator).not.toBeChecked();
+  async assertHidden(locator: Locator): Promise<void> {
+    try {
+      await expect(locator).toBeHidden();
+      LogHelper.logPass(`Element is hidden`);
+    } catch (error) {
+      LogHelper.logFail(`Element should be hidden`, error);
+      throw error;
+    }
   }
 
-  /**
-   * Assert element is focused
-   * @param locator - Element locator
-   */
-  static async assertFocused(locator: Locator): Promise<void> {
-    await expect(locator).toBeFocused();
+  async assertEnabled(locator: Locator): Promise<void> {
+    try {
+      await expect(locator).toBeEnabled();
+      LogHelper.logPass(`Element is enabled`);
+    } catch (error) {
+      LogHelper.logFail(`Element should be enabled`, error);
+      throw error;
+    }
   }
 
-  /**
-   * Assert element has CSS property
-   * @param locator - Element locator
-   * @param name - CSS property name
-   * @param value - Expected CSS property value
-   */
-  static async assertHasCss(locator: Locator, name: string, value: string | RegExp): Promise<void> {
-    await expect(locator).toHaveCSS(name, value);
+  async assertDisabled(locator: Locator): Promise<void> {
+    try {
+      await expect(locator).toBeDisabled();
+      LogHelper.logPass(`Element is disabled`);
+    } catch (error) {
+      LogHelper.logFail(`Element should be disabled`, error);
+      throw error;
+    }
   }
 
-  /**
-   * Assert array contains item
-   * @param array - Array to check
-   * @param item - Item to find
-   */
-  static assertArrayContains<T>(array: T[], item: T): void {
-    expect(array).toContain(item);
+  async assertHasText(locator: Locator, text: string | RegExp): Promise<void> {
+    try {
+      await expect(locator).toHaveText(text);
+      LogHelper.logPass(`Element has text "${text}"`);
+    } catch (error) {
+      LogHelper.logFail(`Element should have text "${text}"`, error);
+      throw error;
+    }
   }
 
-  /**
-   * Assert arrays are equal
-   * @param actual - Actual array
-   * @param expected - Expected array
-   */
-  static assertArraysEqual<T>(actual: T[], expected: T[]): void {
-    expect(JSON.stringify(actual)).toBe(JSON.stringify(expected));
+  async assertContainsText(locator: Locator, text: string | RegExp): Promise<void> {
+    try {
+      await expect(locator).toContainText(text);
+      LogHelper.logPass(`Element contains text "${text}"`);
+    } catch (error) {
+      LogHelper.logFail(`Element should contain text "${text}"`, error);
+      throw error;
+    }
   }
 
-  /**
-   * Assert objects are equal
-   * @param actual - Actual object
-   * @param expected - Expected object
-   */
-  static assertObjectsEqual<T>(actual: T, expected: T): void {
-    expect(JSON.stringify(actual)).toBe(JSON.stringify(expected));
+  async assertHasValue(locator: Locator, value: string | RegExp): Promise<void> {
+    try {
+      await expect(locator).toHaveValue(value);
+      LogHelper.logPass(`Element has value "${value}"`);
+    } catch (error) {
+      LogHelper.logFail(`Element should have value "${value}"`, error);
+      throw error;
+    }
   }
 
-  /**
-   * Assert value is truthy
-   * @param value - Value to check
-   */
-  static assertTruthy(value: unknown): void {
-    expect(value).toBeTruthy();
+  async assertHasAttribute(locator: Locator, name: string, value?: string | RegExp): Promise<void> {
+    try {
+      if (value !== undefined) {
+        await expect(locator).toHaveAttribute(name, value);
+        LogHelper.logPass(`Element has attribute "${name}" with value "${value}"`);
+      } else {
+        await expect(locator).toHaveAttribute(name);
+        LogHelper.logPass(`Element has attribute "${name}"`);
+      }
+    } catch (error) {
+      const msg = value !== undefined ? `attribute "${name}" with value "${value}"` : `attribute "${name}"`;
+      LogHelper.logFail(`Element should have ${msg}`, error);
+      throw error;
+    }
   }
 
-  /**
-   * Assert value is falsy
-   * @param value - Value to check
-   */
-  static assertFalsy(value: unknown): void {
-    expect(value).toBeFalsy();
+  async assertHasClass(locator: Locator, className: string | RegExp): Promise<void> {
+    try {
+      await expect(locator).toHaveClass(className);
+      LogHelper.logPass(`Element has class "${className}"`);
+    } catch (error) {
+      LogHelper.logFail(`Element should have class "${className}"`, error);
+      throw error;
+    }
   }
 
-  /**
-   * Assert value is null
-   * @param value - Value to check
-   */
-  static assertNull(value: unknown): void {
-    expect(value).toBeNull();
+  async assertCount(locator: Locator, count: number): Promise<void> {
+    try {
+      await expect(locator).toHaveCount(count);
+      LogHelper.logPass(`Element count is ${count}`);
+    } catch (error) {
+      LogHelper.logFail(`Element count should be ${count}`, error);
+      throw error;
+    }
   }
 
-  /**
-   * Assert value is not null
-   * @param value - Value to check
-   */
-  static assertNotNull(value: unknown): void {
-    expect(value).not.toBeNull();
+  async assertChecked(locator: Locator): Promise<void> {
+    try {
+      await expect(locator).toBeChecked();
+      LogHelper.logPass(`Element is checked`);
+    } catch (error) {
+      LogHelper.logFail(`Element should be checked`, error);
+      throw error;
+    }
   }
 
-  /**
-   * Assert value is undefined
-   * @param value - Value to check
-   */
-  static assertUndefined(value: unknown): void {
-    expect(value).toBeUndefined();
+  async assertNotChecked(locator: Locator): Promise<void> {
+    try {
+      await expect(locator).not.toBeChecked();
+      LogHelper.logPass(`Element is not checked`);
+    } catch (error) {
+      LogHelper.logFail(`Element should not be checked`, error);
+      throw error;
+    }
   }
 
-  /**
-   * Assert value is defined
-   * @param value - Value to check
-   */
-  static assertDefined(value: unknown): void {
-    expect(value).toBeDefined();
+  async assertFocused(locator: Locator): Promise<void> {
+    try {
+      await expect(locator).toBeFocused();
+      LogHelper.logPass(`Element is focused`);
+    } catch (error) {
+      LogHelper.logFail(`Element should be focused`, error);
+      throw error;
+    }
   }
 
-  /**
-   * Assert number is greater than
-   * @param actual - Actual value
-   * @param expected - Expected minimum value
-   */
-  static assertGreaterThan(actual: number, expected: number): void {
-    expect(actual).toBeGreaterThan(expected);
+  async assertHasCss(locator: Locator, name: string, value: string | RegExp): Promise<void> {
+    try {
+      await expect(locator).toHaveCSS(name, value);
+      LogHelper.logPass(`Element has CSS property "${name}" with value "${value}"`);
+    } catch (error) {
+      LogHelper.logFail(`Element should have CSS property "${name}" with value "${value}"`, error);
+      throw error;
+    }
   }
 
-  /**
-   * Assert number is less than
-   * @param actual - Actual value
-   * @param expected - Expected maximum value
-   */
-  static assertLessThan(actual: number, expected: number): void {
-    expect(actual).toBeLessThan(expected);
+  async assertArrayContains<T>(array: T[], item: T): Promise<void> {
+    try {
+      expect(array).toContain(item);
+      LogHelper.logPass(`Array contains item: ${JSON.stringify(item)}`);
+    } catch (error) {
+      LogHelper.logFail(`Array should contain item ${JSON.stringify(item)}`, error);
+      throw error;
+    }
   }
 
-  /**
-   * Assert response status
-   * @param status - Response status code
-   * @param expectedStatus - Expected status code
-   */
-  static assertResponseStatus(status: number, expectedStatus: number): void {
-    expect(status).toBe(expectedStatus);
+  async assertArraysEqual<T>(actual: T[], expected: T[]): Promise<void> {
+    try {
+      expect(JSON.stringify(actual)).toBe(JSON.stringify(expected));
+      LogHelper.logPass(`Arrays are equal: ${JSON.stringify(actual)}`);
+    } catch (error) {
+      LogHelper.logFail(`Arrays should be equal | Expected: ${JSON.stringify(expected)} | Actual: ${JSON.stringify(actual)}`, error);
+      throw error;
+    }
+  }
+
+  async assertObjectsEqual<T>(actual: T, expected: T): Promise<void> {
+    try {
+      expect(JSON.stringify(actual)).toBe(JSON.stringify(expected));
+      LogHelper.logPass(`Objects are equal: ${JSON.stringify(actual)}`);
+    } catch (error) {
+      LogHelper.logFail(`Objects should be equal | Expected: ${JSON.stringify(expected)} | Actual: ${JSON.stringify(actual)}`, error);
+      throw error;
+    }
+  }
+
+  async assertTruthy(value: unknown): Promise<void> {
+    try {
+      expect(value).toBeTruthy();
+      LogHelper.logPass(`Value is truthy: ${JSON.stringify(value)}`);
+    } catch (error) {
+      LogHelper.logFail(`Value should be truthy | Value: ${JSON.stringify(value)}`, error);
+      throw error;
+    }
+  }
+
+  async assertFalsy(value: unknown): Promise<void> {
+    try {
+      expect(value).toBeFalsy();
+      LogHelper.logPass(`Value is falsy: ${JSON.stringify(value)}`);
+    } catch (error) {
+      LogHelper.logFail(`Value should be falsy | Value: ${JSON.stringify(value)}`, error);
+      throw error;
+    }
+  }
+
+  async assertNull(value: unknown): Promise<void> {
+    try {
+      expect(value).toBeNull();
+      LogHelper.logPass(`Value is null`);
+    } catch (error) {
+      LogHelper.logFail(`Value should be null | Value: ${JSON.stringify(value)}`, error);
+      throw error;
+    }
+  }
+
+  async assertNotNull(value: unknown): Promise<void> {
+    try {
+      expect(value).not.toBeNull();
+      LogHelper.logPass(`Value is not null: ${JSON.stringify(value)}`);
+    } catch (error) {
+      LogHelper.logFail(`Value should not be null`, error);
+      throw error;
+    }
+  }
+
+  async assertUndefined(value: unknown): Promise<void> {
+    try {
+      expect(value).toBeUndefined();
+      LogHelper.logPass(`Value is undefined`);
+    } catch (error) {
+      LogHelper.logFail(`Value should be undefined | Value: ${JSON.stringify(value)}`, error);
+      throw error;
+    }
+  }
+
+  async assertDefined(value: unknown): Promise<void> {
+    try {
+      expect(value).toBeDefined();
+      LogHelper.logPass(`Value is defined: ${JSON.stringify(value)}`);
+    } catch (error) {
+      LogHelper.logFail(`Value should be defined`, error);
+      throw error;
+    }
+  }
+
+  async assertGreaterThan(actual: number, expected: number): Promise<void> {
+    try {
+      expect(actual).toBeGreaterThan(expected);
+      LogHelper.logPass(`${actual} is greater than ${expected}`);
+    } catch (error) {
+      LogHelper.logFail(`${actual} should be greater than ${expected}`, error);
+      throw error;
+    }
+  }
+
+  async assertLessThan(actual: number, expected: number): Promise<void> {
+    try {
+      expect(actual).toBeLessThan(expected);
+      LogHelper.logPass(`${actual} is less than ${expected}`);
+    } catch (error) {
+      LogHelper.logFail(`${actual} should be less than ${expected}`, error);
+      throw error;
+    }
+  }
+
+  async assertResponseStatus(status: number, expectedStatus: number): Promise<void> {
+    try {
+      expect(status).toBe(expectedStatus);
+      LogHelper.logPass(`Response status is ${status}`);
+    } catch (error) {
+      LogHelper.logFail(`Response status should be ${expectedStatus} but got ${status}`, error);
+      throw error;
+    }
   }
 }
+
+export { expect } from '@playwright/test';

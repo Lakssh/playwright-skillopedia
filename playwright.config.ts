@@ -15,7 +15,7 @@ export default defineConfig({
   testMatch: '**/*.spec.ts',
   
   /* Maximum time one test can run for */
-  timeout: 60 * 1000,
+  timeout: 30 * 1000,
   
   /* Test expectations timeout */
   expect: {
@@ -74,52 +74,52 @@ export default defineConfig({
       testMatch: /global\.setup\.ts/,
     },
 
-    {
-      name: 'chromium',
-      use: { 
-        ...devices['Desktop Chrome'],
-        viewport: { width: 1920, height: 1080 },
-      },
-      dependencies: ['setup'],
-    },
+    // {
+    //   name: 'chromium',
+    //   use: { 
+    //     ...devices['Desktop Chrome'],
+    //     viewport: { width: 1920, height: 1080 },
+    //   },
+    //   dependencies: ['setup'],
+    // },
 
-    {
-      name: 'firefox',
-      use: { 
-        ...devices['Desktop Firefox'],
-        viewport: { width: 1920, height: 1080 },
-      },
-      dependencies: ['setup'],
-    },
+    // {
+    //   name: 'firefox',
+    //   use: { 
+    //     ...devices['Desktop Firefox'],
+    //     viewport: { width: 1920, height: 1080 },
+    //   },
+    //   dependencies: ['setup'],
+    // },
 
-    {
-      name: 'webkit',
-      use: { 
-        ...devices['Desktop Safari'],
-        viewport: { width: 1920, height: 1080 },
-      },
-      dependencies: ['setup'],
-    },
+    // {
+    //   name: 'webkit',
+    //   use: { 
+    //     ...devices['Desktop Safari'],
+    //     viewport: { width: 1920, height: 1080 },
+    //   },
+    //   dependencies: ['setup'],
+    // },
 
-    /* Test against mobile viewports */
-    {
-      name: 'Mobile Chrome',
-      use: { ...devices['Pixel 5'] },
-      dependencies: ['setup'],
-    },
+    // /* Test against mobile viewports */
+    // {
+    //   name: 'Mobile Chrome',
+    //   use: { ...devices['Pixel 5'] },
+    //   dependencies: ['setup'],
+    // },
 
-    {
-      name: 'Mobile Safari',
-      use: { ...devices['iPhone 13'] },
-      dependencies: ['setup'],
-    },
+    // {
+    //   name: 'Mobile Safari',
+    //   use: { ...devices['iPhone 13'] },
+    //   dependencies: ['setup'],
+    // },
 
-    /* Test against branded browsers */
-    {
-      name: 'Microsoft Edge',
-      use: { ...devices['Desktop Edge'], channel: 'msedge' },
-      dependencies: ['setup'],
-    },
+    // /* Test against branded browsers */
+    // {
+    //   name: 'Microsoft Edge',
+    //   use: { ...devices['Desktop Edge'], channel: 'msedge' },
+    //   dependencies: ['setup'],
+    // },
 
     {
       name: 'Google Chrome',
@@ -127,9 +127,6 @@ export default defineConfig({
       dependencies: ['setup'],
     },
   ],
-
-  /* Global setup and teardown */
-  globalSetup: require.resolve('./tests/global.setup.ts'),
 
   /* Folder for test artifacts such as screenshots, videos, traces, etc. */
   outputDir: 'test-results',

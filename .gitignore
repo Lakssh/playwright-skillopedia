@@ -47,3 +47,4 @@ temp/
 
 # OS
 Thumbs.db
+.auth/
