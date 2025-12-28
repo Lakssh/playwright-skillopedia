@@ -38,13 +38,23 @@ jobs:
         TEST_ENV: dev
         BASE_URL: https://skillopedia.app
 
+    - name: Check blob report generation
+      if: always()
+      run: |
+        echo "Checking if blob-report directory was created..."
+        find . -name "blob-report*" -type d -o -name "*.zip" | head -20
+        echo "---"
+        ls -la blob-report* 2>/dev/null || echo "No blob-report directories found"
+
     - name: Upload test results
       uses: actions/upload-artifact@v4
       if: always()
       with:
-        name: nightly-results-${{ matrix.browser }}-shard-${{ matrix.shard }}
-        path: blob-report
+        name: blob-reports-${{ matrix.browser }}-${{ matrix.shard }}
+        path: |
+          blob-report*
         retention-days: 30
+        if-no-files-found: warn
   
 
   merge-reports:
@@ -68,14 +78,28 @@ jobs:
       with:
         path: all-reports
 
+    - name: List downloaded artifacts
+      run: |
+        echo "Contents of all-reports:"
+        find all-reports -type f | sort
+        echo "---"
+        ls -la all-reports/
+
     - name: Merge reports
       run: |
         echo "Looking for blob reports..."
-        find all-reports -name "blob-report" -type d
-        echo "Total blob reports found: $(find all-reports -name "blob-report" -type d | wc -l)"
+        find all-reports -type f -name "*.zip" | head -20
+        echo "Total blob reports found: $(find all-reports -type f -name "*.zip" | wc -l)"
+        
+        if [ $(find all-reports -type f -name "*.zip" | wc -l) -eq 0 ]; then
+          echo "ERROR: No blob reports found! Check test execution."
+          echo "Contents of all-reports:"
+          find all-reports -type f | head -20
+          exit 1
+        fi
         
         mkdir -p playwright-report
-        npx playwright merge-reports --reporter html all-reports/blob-report-* --output-dir playwright-report || echo "Merge failed"
+        npx playwright merge-reports all-reports --reporter html --reporter json 2>&1
         
         echo "Checking for report output..."
         ls -la playwright-report/ || echo "No report generated"
