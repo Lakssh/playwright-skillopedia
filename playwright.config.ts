@@ -46,7 +46,7 @@ export default defineConfig({
       outputFolder: 'allure-results',
       suiteTitle: false,
     }],
-    [ExtentReporter, {
+    [ExtentReporter as any, {
       outputFolder: 'extent-report',
     }],
   ],

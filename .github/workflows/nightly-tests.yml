@@ -162,42 +162,41 @@ jobs:
           fi
         done
         
-        # Create a consolidated Extent report
+        # Create a consolidated Extent report index
         if [ -d extent-report-merged ] && [ ! -z "$(ls -A extent-report-merged)" ]; then
           echo "Creating consolidated Extent report..."
-          cat > extent-report-merged/index.html << 'EOF'
-<!DOCTYPE html>
-<html>
-<head>
-  <title>Extent Reports - All Shards</title>
-  <style>
-    body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
-    .container { max-width: 900px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; }
-    h1 { color: #333; }
-    .report-list { list-style: none; padding: 0; }
-    .report-list li { padding: 10px; margin: 10px 0; background: #f9f9f9; border-left: 4px solid #667eea; }
-    .report-list a { color: #667eea; text-decoration: none; font-weight: bold; }
-    .report-list a:hover { text-decoration: underline; }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <h1>📊 Extent Reports - All Test Shards</h1>
-    <p>Individual extent reports from each test shard:</p>
-    <ul class="report-list">
-EOF
+          {
+            echo "<!DOCTYPE html>"
+            echo "<html><head><meta charset='UTF-8'>"
+            echo "<title>Extent Reports - All Shards</title>"
+            echo "<style>"
+            echo "body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }"
+            echo ".container { max-width: 900px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; }"
+            echo "h1 { color: #333; }"
+            echo ".report-list { list-style: none; padding: 0; }"
+            echo ".report-list li { padding: 10px; margin: 10px 0; background: #f9f9f9; border-left: 4px solid #667eea; }"
+            echo ".report-list a { color: #667eea; text-decoration: none; font-weight: bold; }"
+            echo ".report-list a:hover { text-decoration: underline; }"
+            echo "</style></head><body>"
+            echo "<div class='container'>"
+            echo "<h1>📊 Extent Reports - All Test Shards</h1>"
+            echo "<p>Individual extent reports from each test shard:</p>"
+            echo "<ul class='report-list'>"
+          } > extent-report-merged/index.html
+          
           for file in extent-report-merged/*.html; do
             if [ "$(basename "$file")" != "index.html" ]; then
               filename=$(basename "$file")
-              echo "      <li><a href=\"${filename}\">$(basename "$file" .html | sed 's/-extent-report//')</a></li>" >> extent-report-merged/index.html
+              display_name=$(basename "$file" .html | sed 's/-extent-report//')
+              echo "<li><a href='${filename}'>${display_name}</a></li>" >> extent-report-merged/index.html
             fi
           done
-          cat >> extent-report-merged/index.html << 'EOF'
-    </ul>
-  </div>
-</body>
-</html>
-EOF
+          
+          {
+            echo "</ul>"
+            echo "</div></body></html>"
+          } >> extent-report-merged/index.html
+          
           echo "Consolidated Extent report created"
         fi
 

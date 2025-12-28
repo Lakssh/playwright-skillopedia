@@ -73,7 +73,7 @@ export default class ExtentReporter implements Reporter {
     }
   }
 
-  onTestEnd(test: TestCase, result: TestResult) {
+  onTestEnd(_test: TestCase, result: TestResult) {
     if (this.currentTest && this.currentSuite) {
       this.currentTest.duration = result.duration;
 
@@ -104,7 +104,7 @@ export default class ExtentReporter implements Reporter {
     }
   }
 
-  onEnd(result: FullResult) {
+  onEnd(_result: FullResult) {
     const totalDuration = Date.now() - this.startTime;
 
     // Calculate statistics
