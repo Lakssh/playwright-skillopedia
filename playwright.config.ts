@@ -41,8 +41,7 @@ export default defineConfig({
     ['html', { outputFolder: 'playwright-report', open: 'never' }],
     ['json', { outputFile: 'test-results/results.json' }],
     ['junit', { outputFile: 'test-results/junit.xml' }],
-    ...(process.env.CI ? [['github']] : []),
-  ] as ['list' | 'blob' | 'html' | 'json' | 'junit' | 'github', unknown][],
+  ],
 
   /* Shared settings for all the projects below */
   use: {

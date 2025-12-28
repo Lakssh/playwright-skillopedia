@@ -70,8 +70,15 @@ jobs:
 
     - name: Merge reports
       run: |
-        mkdir -p merged-report
-        find all-reports -name "blob-report" -type d | head -n 1 | xargs -I {} npx playwright merge-reports --reporter html {} $(find all-reports -name "blob-report" -type d | tail -n +2)
+        echo "Looking for blob reports..."
+        find all-reports -name "blob-report" -type d
+        echo "Total blob reports found: $(find all-reports -name "blob-report" -type d | wc -l)"
+        
+        mkdir -p playwright-report
+        npx playwright merge-reports --reporter html all-reports/blob-report-* --output-dir playwright-report || echo "Merge failed"
+        
+        echo "Checking for report output..."
+        ls -la playwright-report/ || echo "No report generated"
 
     - name: Upload merged report
       uses: actions/upload-artifact@v4
