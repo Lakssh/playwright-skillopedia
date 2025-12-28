@@ -48,29 +48,36 @@ export default class ExtentReporter implements Reporter {
   }
 
   onSuite(suite: Suite) {
-    if (suite.parent === undefined) {
-      // Only track top-level suites
+    // Track all suites, not just top-level
+    this.currentSuite = {
+      name: suite.title || 'Default Suite',
+      tests: [],
+      startTime: Date.now(),
+      duration: 0,
+    };
+    this.suites.push(this.currentSuite);
+  }
+
+  onTestBegin(test: TestCase) {
+    // Ensure we have a current suite
+    if (!this.currentSuite) {
       this.currentSuite = {
-        name: suite.title || 'Default Suite',
+        name: test.file || 'Default Suite',
         tests: [],
         startTime: Date.now(),
         duration: 0,
       };
       this.suites.push(this.currentSuite);
     }
-  }
-
-  onTestBegin(test: TestCase) {
-    if (this.currentSuite) {
-      this.currentTest = {
-        name: test.title,
-        status: 'PASS',
-        duration: 0,
-        startTime: Date.now(),
-        logs: [],
-        attachments: [],
-      };
-    }
+    
+    this.currentTest = {
+      name: test.title,
+      status: 'PASS',
+      duration: 0,
+      startTime: Date.now(),
+      logs: [],
+      attachments: [],
+    };
   }
 
   onTestEnd(_test: TestCase, result: TestResult) {

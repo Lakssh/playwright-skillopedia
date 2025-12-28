@@ -43,7 +43,7 @@ export default defineConfig({
     ['junit', { outputFile: 'test-results/junit.xml' }],
     ['allure-playwright', {
       outputFolder: 'allure-results',
-      suiteTitle: false,
+      suiteTitle: true,
     }],
     ['./src/core/reporters/extent-reporter.ts', {
       outputFolder: 'extent-report',
