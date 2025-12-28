@@ -61,7 +61,7 @@ userTestData.forEach(({ role, emailKey, passwordKey, nameKey }) => {
     const authStatePath = path.join('.auth', `${roleFileName}-auth.json`);
     
     // Skip if auth state exists and force refresh is not enabled
-    if (fs.existsSync(authStatePath) && process.env.FORCE_AUTH_REFRESH !== 'true') {
+    if (fs.existsSync(authStatePath)) {
       console.log(`✅ Auth state for ${role} already exists at: ${authStatePath}`);
       console.log(`⏭️ Skipping authentication setup for ${role}`);
       return;

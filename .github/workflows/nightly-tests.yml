@@ -43,10 +43,9 @@ jobs:
       if: always()
       with:
         name: nightly-results-${{ matrix.browser }}-shard-${{ matrix.shard }}
-        path: |
-          playwright-report/
-          test-results/
+        path: blob-report
         retention-days: 30
+  
 
   merge-reports:
     if: always()
