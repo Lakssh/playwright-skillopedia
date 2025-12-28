@@ -30,7 +30,7 @@ jobs:
       run: npm ci
 
     - name: Install Playwright Browsers
-      run: npx playwright install --with-deps ${{ matrix.browser }}
+      run: npx playwright install --with-deps
 
     - name: Run full regression tests
       run: npm test -- --project=${{ matrix.browser }} --shard=${{ matrix.shard }}/${{ strategy.job-total }} --grep @login
