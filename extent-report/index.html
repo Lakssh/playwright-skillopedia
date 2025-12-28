@@ -139,6 +139,31 @@
       color: #c41e3a;
       font-size: 0.85em;
     }
+    tr.attachment-row {
+      background: #f0f9ff;
+      border-top: 2px solid #dbeafe;
+    }
+    .attachments {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      padding: 8px 0;
+    }
+    .attachment-link {
+      display: inline-block;
+      padding: 6px 12px;
+      background: #dbeafe;
+      color: #0369a1;
+      text-decoration: none;
+      border-radius: 4px;
+      font-size: 0.85em;
+      font-weight: 500;
+      transition: background 0.2s;
+    }
+    .attachment-link:hover {
+      background: #bfdbfe;
+      color: #0c4a6e;
+    }
     .status-badge {
       display: inline-flex;
       align-items: center;
@@ -198,11 +223,11 @@
     <div class="stats-grid">
       <div class="stat-card">
         <h3>Total Tests</h3>
-        <div class="value">5</div>
+        <div class="value">2</div>
       </div>
       <div class="stat-card pass">
         <h3>Passed</h3>
-        <div class="value">5</div>
+        <div class="value">2</div>
       </div>
       <div class="stat-card fail">
         <h3>Failed</h3>
@@ -221,7 +246,7 @@
       </div>
       <div class="stat-card">
         <h3>Duration</h3>
-        <div class="value">180.49s</div>
+        <div class="value">18.33s</div>
       </div>
     </div>
 
@@ -239,43 +264,21 @@
         <tbody>
           
         <tr class="pass">
-          <td><span class="status-badge pass">✓</span> authenticate as Skill Guide</td>
+          <td><span class="status-badge pass">✓</span> authenticate as Skill Mentor</td>
           <td>Default Suite</td>
           <td><span class="status pass">PASS</span></td>
-          <td>714ms</td>
+          <td>946ms</td>
         </tr>
+        
         
         
         <tr class="pass">
-          <td><span class="status-badge pass">✓</span> should show validation error for empty email @login</td>
+          <td><span class="status-badge pass">✓</span> successful login as Skill Seeker @login @critical</td>
           <td>Default Suite</td>
           <td><span class="status pass">PASS</span></td>
-          <td>8801ms</td>
+          <td>11148ms</td>
         </tr>
         
-        
-        <tr class="pass">
-          <td><span class="status-badge pass">✓</span> should show validation error for empty password @login</td>
-          <td>Default Suite</td>
-          <td><span class="status pass">PASS</span></td>
-          <td>13842ms</td>
-        </tr>
-        
-        
-        <tr class="pass">
-          <td><span class="status-badge pass">✓</span> should navigate to forgot password page @login</td>
-          <td>Default Suite</td>
-          <td><span class="status pass">PASS</span></td>
-          <td>14696ms</td>
-        </tr>
-        
-        
-        <tr class="pass">
-          <td><span class="status-badge pass">✓</span> should navigate to registration page @login</td>
-          <td>Default Suite</td>
-          <td><span class="status pass">PASS</span></td>
-          <td>5818ms</td>
-        </tr>
         
         
         </tbody>
@@ -283,7 +286,7 @@
     </div>
 
     <div class="footer">
-      <p>Generated on 12/28/2025, 11:44:58 PM</p>
+      <p>Generated on 12/28/2025, 11:47:08 PM</p>
       <p>Extent HTML Report for Playwright</p>
     </div>
   </div>

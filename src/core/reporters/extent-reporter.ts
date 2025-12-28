@@ -129,6 +129,9 @@ export default class ExtentReporter implements Reporter {
       });
     });
 
+    // Copy attachments to report directory
+    this.copyAttachments();
+
     const html = this.generateHTML({
       totalTests,
       passedTests,
@@ -140,6 +143,24 @@ export default class ExtentReporter implements Reporter {
     const reportPath = path.join(this.outputDir, 'index.html');
     fs.writeFileSync(reportPath, html);
     console.log(`Extent Report generated: ${reportPath}`);
+  }
+
+  private copyAttachments() {
+    this.suites.forEach((suite) => {
+      suite.tests.forEach((test) => {
+        test.attachments.forEach((attachment) => {
+          if (attachment.path && fs.existsSync(attachment.path)) {
+            try {
+              const fileName = path.basename(attachment.path);
+              const destPath = path.join(this.outputDir, fileName);
+              fs.copyFileSync(attachment.path, destPath);
+            } catch (_err) {
+              // Silently fail if copy doesn't work
+            }
+          }
+        });
+      });
+    });
   }
 
   private generateHTML(stats: {
@@ -158,6 +179,18 @@ export default class ExtentReporter implements Reporter {
         const statusClass = test.status === 'PASS' ? 'pass' : test.status === 'FAIL' ? 'fail' : 'skip';
         const statusIcon = test.status === 'PASS' ? '✓' : test.status === 'FAIL' ? '✗' : '⊘';
 
+        // Build attachments HTML
+        let attachmentsHTML = '';
+        if (test.attachments && test.attachments.length > 0) {
+          attachmentsHTML = '<div class="attachments">';
+          test.attachments.forEach((attachment) => {
+            const fileName = attachment.path ? path.basename(attachment.path) : attachment.name || 'Attachment';
+            const displayName = attachment.name || fileName;
+            attachmentsHTML += `<a href="${fileName}" target="_blank" class="attachment-link">📎 ${this.escapeHTML(displayName)}</a> `;
+          });
+          attachmentsHTML += '</div>';
+        }
+
         testRows += `
         <tr class="${statusClass}">
           <td><span class="status-badge ${statusClass}">${statusIcon}</span> ${test.name}</td>
@@ -168,6 +201,11 @@ export default class ExtentReporter implements Reporter {
         ${
           test.error
             ? `<tr class="error-row"><td colspan="4"><pre>${this.escapeHTML(test.error)}</pre></td></tr>`
+            : ''
+        }
+        ${
+          attachmentsHTML
+            ? `<tr class="attachment-row"><td colspan="4">${attachmentsHTML}</td></tr>`
             : ''
         }
         `;
@@ -314,6 +352,31 @@ export default class ExtentReporter implements Reporter {
       overflow-x: auto;
       color: #c41e3a;
       font-size: 0.85em;
+    }
+    tr.attachment-row {
+      background: #f0f9ff;
+      border-top: 2px solid #dbeafe;
+    }
+    .attachments {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      padding: 8px 0;
+    }
+    .attachment-link {
+      display: inline-block;
+      padding: 6px 12px;
+      background: #dbeafe;
+      color: #0369a1;
+      text-decoration: none;
+      border-radius: 4px;
+      font-size: 0.85em;
+      font-weight: 500;
+      transition: background 0.2s;
+    }
+    .attachment-link:hover {
+      background: #bfdbfe;
+      color: #0c4a6e;
     }
     .status-badge {
       display: inline-flex;
