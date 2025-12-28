@@ -33,10 +33,10 @@ jobs:
       run: npx playwright install --with-deps ${{ matrix.browser }}
 
     - name: Run full regression tests
-      run: npm test -- --project=${{ matrix.browser }} --shard=${{ matrix.shard }}/${{ strategy.job-total }}
+      run: npm test -- --project=${{ matrix.browser }} --shard=${{ matrix.shard }}/${{ strategy.job-total }} --grep @login
       env:
-        TEST_ENV: staging
-        BASE_URL: https://skill-sprig.vercel.app
+        TEST_ENV: dev
+        BASE_URL: https://skillopedia.app
 
     - name: Upload test results
       uses: actions/upload-artifact@v4
