@@ -1,6 +1,13 @@
-import { Reporter, FullResult, Suite, TestCase, TestResult } from '@playwright/test/reporter';
+import { Reporter, FullResult, Suite, TestCase, TestResult, TestStep } from '@playwright/test/reporter';
 import * as fs from 'fs';
 import * as path from 'path';
+
+interface ExtentStep {
+  title: string;
+  status: 'PASS' | 'FAIL';
+  duration: number;
+  error?: string;
+}
 
 interface ExtentTest {
   name: string;
@@ -10,6 +17,7 @@ interface ExtentTest {
   logs: string[];
   error?: string;
   attachments: Array<{ name: string; path: string }>;
+  steps: ExtentStep[];
 }
 
 interface ExtentSuite {
@@ -77,7 +85,20 @@ export default class ExtentReporter implements Reporter {
       startTime: Date.now(),
       logs: [],
       attachments: [],
+      steps: [],
     };
+  }
+
+  onStepEnd(_test: TestCase, _result: TestResult, step: TestStep) {
+    // Only capture user-defined steps (not internal Playwright steps)
+    if (this.currentTest && step.category === 'test.step') {
+      this.currentTest.steps.push({
+        title: step.title,
+        status: step.error ? 'FAIL' : 'PASS',
+        duration: step.duration,
+        error: step.error?.message,
+      });
+    }
   }
 
   onTestEnd(_test: TestCase, result: TestResult) {
@@ -98,6 +119,7 @@ export default class ExtentReporter implements Reporter {
 
       // Capture attachments
       if (result.attachments && result.attachments.length > 0) {
+        console.log(`📎 Found ${result.attachments.length} attachments for ${this.currentTest.name}`);
         result.attachments.forEach((attachment) => {
           this.currentTest!.attachments.push({
             name: attachment.name,
@@ -146,14 +168,43 @@ export default class ExtentReporter implements Reporter {
   }
 
   private copyAttachments() {
+    const testResultsDir = 'test-results';
+    
+    // Create attachments subdirectory
+    const attachmentsDir = path.join(this.outputDir, 'attachments');
+    if (!fs.existsSync(attachmentsDir)) {
+      fs.mkdirSync(attachmentsDir, { recursive: true });
+    }
+
+    // Look for test artifacts in test-results directory
+    if (fs.existsSync(testResultsDir)) {
+      try {
+        const files = this.findFilesRecursive(testResultsDir, ['.png', '.webm', '.txt', '.json', '.mp4']);
+        files.forEach((filePath) => {
+          try {
+            const fileName = path.basename(filePath);
+            const destPath = path.join(attachmentsDir, fileName);
+            fs.copyFileSync(filePath, destPath);
+          } catch (_err) {
+            // Silently fail
+          }
+        });
+      } catch (_err) {
+        // Silently fail if directory doesn't exist
+      }
+    }
+
+    // Also copy from reporter attachments if they exist
     this.suites.forEach((suite) => {
       suite.tests.forEach((test) => {
         test.attachments.forEach((attachment) => {
           if (attachment.path && fs.existsSync(attachment.path)) {
             try {
               const fileName = path.basename(attachment.path);
-              const destPath = path.join(this.outputDir, fileName);
-              fs.copyFileSync(attachment.path, destPath);
+              const destPath = path.join(attachmentsDir, fileName);
+              if (!fs.existsSync(destPath)) {
+                fs.copyFileSync(attachment.path, destPath);
+              }
             } catch (_err) {
               // Silently fail if copy doesn't work
             }
@@ -161,6 +212,26 @@ export default class ExtentReporter implements Reporter {
         });
       });
     });
+  }
+
+  private findFilesRecursive(dir: string, extensions: string[]): string[] {
+    const files: string[] = [];
+    
+    try {
+      const entries = fs.readdirSync(dir, { withFileTypes: true });
+      entries.forEach((entry) => {
+        const fullPath = path.join(dir, entry.name);
+        if (entry.isDirectory()) {
+          files.push(...this.findFilesRecursive(fullPath, extensions));
+        } else if (extensions.some((ext) => entry.name.endsWith(ext))) {
+          files.push(fullPath);
+        }
+      });
+    } catch (_err) {
+      // Silently fail
+    }
+
+    return files;
   }
 
   private generateHTML(stats: {
@@ -179,6 +250,26 @@ export default class ExtentReporter implements Reporter {
         const statusClass = test.status === 'PASS' ? 'pass' : test.status === 'FAIL' ? 'fail' : 'skip';
         const statusIcon = test.status === 'PASS' ? '✓' : test.status === 'FAIL' ? '✗' : '⊘';
 
+        // Build steps HTML
+        let stepsHTML = '';
+        if (test.steps && test.steps.length > 0) {
+          stepsHTML = '<div class="steps-container">';
+          test.steps.forEach((step) => {
+            const stepStatusClass = step.status === 'PASS' ? 'pass' : 'fail';
+            const stepIcon = step.status === 'PASS' ? '✓' : '✗';
+            stepsHTML += `
+              <div class="step ${stepStatusClass}">
+                <span class="step-icon ${stepStatusClass}">${stepIcon}</span>
+                <span class="step-title">${this.escapeHTML(step.title)}</span>
+                <span class="step-duration">${step.duration}ms</span>
+              </div>`;
+            if (step.error) {
+              stepsHTML += `<div class="step-error">${this.escapeHTML(step.error)}</div>`;
+            }
+          });
+          stepsHTML += '</div>';
+        }
+
         // Build attachments HTML
         let attachmentsHTML = '';
         if (test.attachments && test.attachments.length > 0) {
@@ -186,7 +277,7 @@ export default class ExtentReporter implements Reporter {
           test.attachments.forEach((attachment) => {
             const fileName = attachment.path ? path.basename(attachment.path) : attachment.name || 'Attachment';
             const displayName = attachment.name || fileName;
-            attachmentsHTML += `<a href="${fileName}" target="_blank" class="attachment-link">📎 ${this.escapeHTML(displayName)}</a> `;
+            attachmentsHTML += `<a href="attachments/${fileName}" target="_blank" class="attachment-link">📎 ${this.escapeHTML(displayName)}</a> `;
           });
           attachmentsHTML += '</div>';
         }
@@ -198,6 +289,11 @@ export default class ExtentReporter implements Reporter {
           <td><span class="status ${statusClass}">${test.status}</span></td>
           <td>${test.duration}ms</td>
         </tr>
+        ${
+          stepsHTML
+            ? `<tr class="steps-row"><td colspan="4">${stepsHTML}</td></tr>`
+            : ''
+        }
         ${
           test.error
             ? `<tr class="error-row"><td colspan="4"><pre>${this.escapeHTML(test.error)}</pre></td></tr>`
@@ -378,6 +474,88 @@ export default class ExtentReporter implements Reporter {
       background: #bfdbfe;
       color: #0c4a6e;
     }
+    .attachment-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 15px;
+      margin-top: 15px;
+    }
+    .attachment-card {
+      display: block;
+      padding: 15px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      text-decoration: none;
+      color: #334155;
+      font-size: 0.9em;
+      word-break: break-all;
+      transition: all 0.2s;
+    }
+    .attachment-card:hover {
+      background: #e2e8f0;
+      border-color: #cbd5e1;
+      transform: translateY(-2px);
+    }
+    .attachment-info {
+      color: #64748b;
+      margin-bottom: 10px;
+    }
+    .steps-row {
+      background: #fafafa;
+    }
+    .steps-container {
+      padding: 10px 0;
+    }
+    .step {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 12px;
+      margin: 4px 0;
+      background: white;
+      border-radius: 6px;
+      border-left: 3px solid #e5e7eb;
+    }
+    .step.pass {
+      border-left-color: #10b981;
+    }
+    .step.fail {
+      border-left-color: #ef4444;
+    }
+    .step-icon {
+      width: 20px;
+      height: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      font-size: 12px;
+      font-weight: bold;
+      color: white;
+    }
+    .step-icon.pass {
+      background: #10b981;
+    }
+    .step-icon.fail {
+      background: #ef4444;
+    }
+    .step-title {
+      flex: 1;
+      color: #374151;
+    }
+    .step-duration {
+      color: #9ca3af;
+      font-size: 0.85em;
+    }
+    .step-error {
+      background: #fef2f2;
+      color: #dc2626;
+      padding: 8px 12px;
+      margin: 4px 0 4px 32px;
+      border-radius: 4px;
+      font-size: 0.85em;
+    }
     .status-badge {
       display: inline-flex;
       align-items: center;
@@ -481,6 +659,8 @@ export default class ExtentReporter implements Reporter {
       </table>
     </div>
 
+    ${this.generateAttachmentSection()}
+
     <div class="footer">
       <p>Generated on ${new Date().toLocaleString()}</p>
       <p>Extent HTML Report for Playwright</p>
@@ -489,6 +669,44 @@ export default class ExtentReporter implements Reporter {
 </body>
 </html>
     `;
+  }
+
+  private generateAttachmentSection(): string {
+    const attachmentsDir = path.join(this.outputDir, 'attachments');
+    
+    if (!fs.existsSync(attachmentsDir)) {
+      return '';
+    }
+
+    try {
+      const files = fs.readdirSync(attachmentsDir);
+      if (files.length === 0) {
+        return '';
+      }
+
+      let attachmentItems = '';
+      files.forEach((file) => {
+        const ext = path.extname(file).toLowerCase();
+        let icon = '📄';
+        if (ext === '.png' || ext === '.jpg' || ext === '.jpeg') icon = '📸';
+        else if (ext === '.webm' || ext === '.mp4') icon = '🎥';
+        else if (ext === '.txt' || ext === '.md') icon = '📝';
+        else if (ext === '.json') icon = '📋';
+        
+        attachmentItems += `<a href="attachments/${file}" target="_blank" class="attachment-card">${icon} ${file}</a>`;
+      });
+
+      return `
+    <div class="content">
+      <h2>📎 Test Attachments</h2>
+      <p class="attachment-info">Screenshots, videos, and other artifacts from test execution:</p>
+      <div class="attachment-grid">
+        ${attachmentItems}
+      </div>
+    </div>`;
+    } catch (_err) {
+      return '';
+    }
   }
 
   private escapeHTML(text: string): string {

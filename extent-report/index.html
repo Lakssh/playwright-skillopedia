@@ -164,6 +164,88 @@
       background: #bfdbfe;
       color: #0c4a6e;
     }
+    .attachment-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 15px;
+      margin-top: 15px;
+    }
+    .attachment-card {
+      display: block;
+      padding: 15px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      text-decoration: none;
+      color: #334155;
+      font-size: 0.9em;
+      word-break: break-all;
+      transition: all 0.2s;
+    }
+    .attachment-card:hover {
+      background: #e2e8f0;
+      border-color: #cbd5e1;
+      transform: translateY(-2px);
+    }
+    .attachment-info {
+      color: #64748b;
+      margin-bottom: 10px;
+    }
+    .steps-row {
+      background: #fafafa;
+    }
+    .steps-container {
+      padding: 10px 0;
+    }
+    .step {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 12px;
+      margin: 4px 0;
+      background: white;
+      border-radius: 6px;
+      border-left: 3px solid #e5e7eb;
+    }
+    .step.pass {
+      border-left-color: #10b981;
+    }
+    .step.fail {
+      border-left-color: #ef4444;
+    }
+    .step-icon {
+      width: 20px;
+      height: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      font-size: 12px;
+      font-weight: bold;
+      color: white;
+    }
+    .step-icon.pass {
+      background: #10b981;
+    }
+    .step-icon.fail {
+      background: #ef4444;
+    }
+    .step-title {
+      flex: 1;
+      color: #374151;
+    }
+    .step-duration {
+      color: #9ca3af;
+      font-size: 0.85em;
+    }
+    .step-error {
+      background: #fef2f2;
+      color: #dc2626;
+      padding: 8px 12px;
+      margin: 4px 0 4px 32px;
+      border-radius: 4px;
+      font-size: 0.85em;
+    }
     .status-badge {
       display: inline-flex;
       align-items: center;
@@ -246,7 +328,7 @@
       </div>
       <div class="stat-card">
         <h3>Duration</h3>
-        <div class="value">18.33s</div>
+        <div class="value">17.98s</div>
       </div>
     </div>
 
@@ -264,11 +346,12 @@
         <tbody>
           
         <tr class="pass">
-          <td><span class="status-badge pass">✓</span> authenticate as Skill Mentor</td>
+          <td><span class="status-badge pass">✓</span> authenticate as Skill Seeker</td>
           <td>Default Suite</td>
           <td><span class="status pass">PASS</span></td>
-          <td>946ms</td>
+          <td>982ms</td>
         </tr>
+        
         
         
         
@@ -276,8 +359,99 @@
           <td><span class="status-badge pass">✓</span> successful login as Skill Seeker @login @critical</td>
           <td>Default Suite</td>
           <td><span class="status pass">PASS</span></td>
-          <td>11148ms</td>
+          <td>10878ms</td>
         </tr>
+        <tr class="steps-row"><td colspan="4"><div class="steps-container">
+              <div class="step pass">
+                <span class="step-icon pass">✓</span>
+                <span class="step-title">☑️ COMPLETED Navigated to URL: https://skillopedia.app/</span>
+                <span class="step-duration">5ms</span>
+              </div>
+              <div class="step pass">
+                <span class="step-icon pass">✓</span>
+                <span class="step-title">☑️ COMPLETED Page loaded successfully (networkidle)</span>
+                <span class="step-duration">12ms</span>
+              </div>
+              <div class="step pass">
+                <span class="step-icon pass">✓</span>
+                <span class="step-title">✅ PASS Page title is &quot;Skillopedia - Find Your Perfect Skill Mentor&quot;</span>
+                <span class="step-duration">4ms</span>
+              </div>
+              <div class="step pass">
+                <span class="step-icon pass">✓</span>
+                <span class="step-title">☑️ COMPLETED Element is visible (assertion passed)</span>
+                <span class="step-duration">3ms</span>
+              </div>
+              <div class="step pass">
+                <span class="step-icon pass">✓</span>
+                <span class="step-title">☑️ COMPLETED Element is visible (assertion passed)</span>
+                <span class="step-duration">3ms</span>
+              </div>
+              <div class="step pass">
+                <span class="step-icon pass">✓</span>
+                <span class="step-title">☑️ COMPLETED Element is visible (assertion passed)</span>
+                <span class="step-duration">3ms</span>
+              </div>
+              <div class="step pass">
+                <span class="step-icon pass">✓</span>
+                <span class="step-title">☑️ COMPLETED Input field filled with text: &quot;lakssh@hotmail.com&quot;</span>
+                <span class="step-duration">2ms</span>
+              </div>
+              <div class="step pass">
+                <span class="step-icon pass">✓</span>
+                <span class="step-title">☑️ COMPLETED Input field filled with text: &quot;SkillSprig2024Staging!&quot;</span>
+                <span class="step-duration">1ms</span>
+              </div>
+              <div class="step pass">
+                <span class="step-icon pass">✓</span>
+                <span class="step-title">☑️ COMPLETED Element clicked successfully</span>
+                <span class="step-duration">4ms</span>
+              </div>
+              <div class="step pass">
+                <span class="step-icon pass">✓</span>
+                <span class="step-title">☑️ COMPLETED Element is visible (assertion passed)</span>
+                <span class="step-duration">1ms</span>
+              </div>
+              <div class="step pass">
+                <span class="step-icon pass">✓</span>
+                <span class="step-title">☑️ COMPLETED Element clicked successfully</span>
+                <span class="step-duration">4ms</span>
+              </div>
+              <div class="step pass">
+                <span class="step-icon pass">✓</span>
+                <span class="step-title">☑️ COMPLETED Element is visible (assertion passed)</span>
+                <span class="step-duration">2ms</span>
+              </div>
+              <div class="step pass">
+                <span class="step-icon pass">✓</span>
+                <span class="step-title">☑️ COMPLETED Element is visible (assertion passed)</span>
+                <span class="step-duration">2ms</span>
+              </div>
+              <div class="step pass">
+                <span class="step-icon pass">✓</span>
+                <span class="step-title">✅ PASS Element has text &quot;Lakshmanan Chellappan&quot;</span>
+                <span class="step-duration">3ms</span>
+              </div>
+              <div class="step pass">
+                <span class="step-icon pass">✓</span>
+                <span class="step-title">✅ PASS Element has text &quot;Skill Seeker&quot;</span>
+                <span class="step-duration">1ms</span>
+              </div>
+              <div class="step pass">
+                <span class="step-icon pass">✓</span>
+                <span class="step-title">☑️ COMPLETED Element clicked successfully</span>
+                <span class="step-duration">2ms</span>
+              </div>
+              <div class="step pass">
+                <span class="step-icon pass">✓</span>
+                <span class="step-title">☑️ COMPLETED Element clicked successfully</span>
+                <span class="step-duration">3ms</span>
+              </div>
+              <div class="step pass">
+                <span class="step-icon pass">✓</span>
+                <span class="step-title">☑️ COMPLETED Element clicked successfully</span>
+                <span class="step-duration">1ms</span>
+              </div></div></td></tr>
         
         
         
@@ -285,8 +459,17 @@
       </table>
     </div>
 
+    
+    <div class="content">
+      <h2>📎 Test Attachments</h2>
+      <p class="attachment-info">Screenshots, videos, and other artifacts from test execution:</p>
+      <div class="attachment-grid">
+        <a href="attachments/results.json" target="_blank" class="attachment-card">📋 results.json</a>
+      </div>
+    </div>
+
     <div class="footer">
-      <p>Generated on 12/28/2025, 11:47:08 PM</p>
+      <p>Generated on 12/28/2025, 11:54:04 PM</p>
       <p>Extent HTML Report for Playwright</p>
     </div>
   </div>
