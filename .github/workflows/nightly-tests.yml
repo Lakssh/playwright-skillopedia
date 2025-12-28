@@ -43,6 +43,7 @@ jobs:
       run: |
         echo "Checking test artifacts..."
         find . -name "allure-results" -type d
+        find . -name "extent-report" -type d
         find . -name "blob-report*" -type d -o -name "*.zip" | head -20
 
     - name: Upload test results
@@ -61,6 +62,15 @@ jobs:
       with:
         name: allure-results-${{ matrix.browser }}-${{ matrix.shard }}
         path: allure-results
+        retention-days: 30
+        if-no-files-found: warn
+
+    - name: Upload Extent report
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: extent-report-${{ matrix.browser }}-${{ matrix.shard }}
+        path: extent-report/index.html
         retention-days: 30
         if-no-files-found: warn
   
@@ -136,6 +146,61 @@ jobs:
           npx allure generate allure-report-merged -o allure-report --clean 2>/dev/null || echo "Allure CLI not available - skipping HTML generation"
         fi
 
+    - name: Merge Extent reports
+      if: always()
+      run: |
+        echo "Merging Extent reports..."
+        mkdir -p extent-report-merged
+        
+        # Copy all extent-report/index.html files
+        for report in all-reports/*/extent-report*/index.html; do
+          if [ -f "$report" ]; then
+            echo "Found Extent report: $report"
+            # Copy the HTML file with a unique name
+            filename=$(basename $(dirname $(dirname "$report")))
+            cp "$report" "extent-report-merged/${filename}-extent-report.html"
+          fi
+        done
+        
+        # Create a consolidated Extent report
+        if [ -d extent-report-merged ] && [ ! -z "$(ls -A extent-report-merged)" ]; then
+          echo "Creating consolidated Extent report..."
+          cat > extent-report-merged/index.html << 'EOF'
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Extent Reports - All Shards</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
+    .container { max-width: 900px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; }
+    h1 { color: #333; }
+    .report-list { list-style: none; padding: 0; }
+    .report-list li { padding: 10px; margin: 10px 0; background: #f9f9f9; border-left: 4px solid #667eea; }
+    .report-list a { color: #667eea; text-decoration: none; font-weight: bold; }
+    .report-list a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>📊 Extent Reports - All Test Shards</h1>
+    <p>Individual extent reports from each test shard:</p>
+    <ul class="report-list">
+EOF
+          for file in extent-report-merged/*.html; do
+            if [ "$(basename "$file")" != "index.html" ]; then
+              filename=$(basename "$file")
+              echo "      <li><a href=\"${filename}\">$(basename "$file" .html | sed 's/-extent-report//')</a></li>" >> extent-report-merged/index.html
+            fi
+          done
+          cat >> extent-report-merged/index.html << 'EOF'
+    </ul>
+  </div>
+</body>
+</html>
+EOF
+          echo "Consolidated Extent report created"
+        fi
+
     - name: Upload merged report
       uses: actions/upload-artifact@v4
       if: always()
@@ -153,6 +218,15 @@ jobs:
         retention-days: 30
         if-no-files-found: warn
 
+    - name: Upload Extent report
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: extent-html-report
+        path: extent-report-merged/
+        retention-days: 30
+        if-no-files-found: warn
+
     - name: Generate summary
       if: always()
       run: |
@@ -161,6 +235,7 @@ jobs:
         echo "### Reports Available:" >> $GITHUB_STEP_SUMMARY
         echo "- **Playwright HTML Report**: Download artifact 'merged-html-report'" >> $GITHUB_STEP_SUMMARY
         echo "- **Allure Report**: Download artifact 'allure-html-report'" >> $GITHUB_STEP_SUMMARY
+        echo "- **Extent Report**: Download artifact 'extent-html-report'" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
         echo "### Local Testing:" >> $GITHUB_STEP_SUMMARY
         echo "\`\`\`bash" >> $GITHUB_STEP_SUMMARY
@@ -169,6 +244,9 @@ jobs:
         echo "" >> $GITHUB_STEP_SUMMARY
         echo "# View Playwright report" >> $GITHUB_STEP_SUMMARY
         echo "npm run report" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "# View Extent report" >> $GITHUB_STEP_SUMMARY
+        echo "npm run report:extent" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
         echo "# Generate and view Allure report" >> $GITHUB_STEP_SUMMARY
         echo "npm run allure:report && npm run allure:open" >> $GITHUB_STEP_SUMMARY

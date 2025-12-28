@@ -1,6 +1,7 @@
 import { defineConfig, devices } from '@playwright/test';
 import dotenv from 'dotenv';
 import path from 'path';
+import ExtentReporter from './src/core/reporters/extent-reporter';
 
 // Load environment variables
 const environment = process.env.TEST_ENV || 'dev';
@@ -44,6 +45,9 @@ export default defineConfig({
     ['allure-playwright', {
       outputFolder: 'allure-results',
       suiteTitle: false,
+    }],
+    [ExtentReporter, {
+      outputFolder: 'extent-report',
     }],
   ],
 

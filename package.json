@@ -11,6 +11,7 @@
     "test:debug": "TEST_ENV=dev npx playwright test --debug",
     "test:headed": "playwright test --headed --grep @login",
     "report": "playwright show-report",
+    "report:extent": "open extent-report/index.html || xdg-open extent-report/index.html",
     "allure:report": "allure generate allure-results -o allure-report --clean",
     "allure:open": "allure open allure-report"
   },
@@ -36,7 +37,6 @@
     "eslint": "^8.57.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-playwright": "^1.6.0",
-    "extent": "^0.4.0",
     "faker": "^5.5.3",
     "prettier": "^3.3.0",
     "typescript": "^5.5.0"
