@@ -38,13 +38,12 @@ jobs:
         TEST_ENV: dev
         BASE_URL: https://skillopedia.app
 
-    - name: Check blob report generation
+    - name: Check test artifacts
       if: always()
       run: |
-        echo "Checking if blob-report directory was created..."
+        echo "Checking test artifacts..."
+        find . -name "allure-results" -type d
         find . -name "blob-report*" -type d -o -name "*.zip" | head -20
-        echo "---"
-        ls -la blob-report* 2>/dev/null || echo "No blob-report directories found"
 
     - name: Upload test results
       uses: actions/upload-artifact@v4
@@ -53,6 +52,15 @@ jobs:
         name: blob-reports-${{ matrix.browser }}-${{ matrix.shard }}
         path: |
           blob-report*
+        retention-days: 30
+        if-no-files-found: warn
+
+    - name: Upload Allure results
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: allure-results-${{ matrix.browser }}-${{ matrix.shard }}
+        path: allure-results
         retention-days: 30
         if-no-files-found: warn
   
@@ -72,6 +80,9 @@ jobs:
 
     - name: Install dependencies
       run: npm ci
+
+    - name: Install Allure CLI
+      run: npm install -g allure-commandline
 
     - name: Download all artifacts
       uses: actions/download-artifact@v4
@@ -104,6 +115,27 @@ jobs:
         echo "Checking for report output..."
         ls -la playwright-report/ || echo "No report generated"
 
+    - name: Merge Allure results
+      if: always()
+      run: |
+        echo "Merging Allure results..."
+        mkdir -p allure-report-merged
+        
+        # Copy all allure-results directories
+        for dir in all-reports/*/allure-results; do
+          if [ -d "$dir" ]; then
+            echo "Found: $dir"
+            cp -r "$dir"/* allure-report-merged/ 2>/dev/null || true
+          fi
+        done
+        
+        if [ -z "$(ls -A allure-report-merged)" ]; then
+          echo "Warning: No Allure results found to merge"
+        else
+          echo "Generating Allure HTML report..."
+          npx allure generate allure-report-merged -o allure-report --clean 2>/dev/null || echo "Allure CLI not available - skipping HTML generation"
+        fi
+
     - name: Upload merged report
       uses: actions/upload-artifact@v4
       if: always()
@@ -111,3 +143,33 @@ jobs:
         name: merged-html-report
         path: playwright-report/
         retention-days: 30
+
+    - name: Upload Allure report
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: allure-html-report
+        path: allure-report/
+        retention-days: 30
+        if-no-files-found: warn
+
+    - name: Generate summary
+      if: always()
+      run: |
+        echo "## 📊 Nightly Test Reports" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### Reports Available:" >> $GITHUB_STEP_SUMMARY
+        echo "- **Playwright HTML Report**: Download artifact 'merged-html-report'" >> $GITHUB_STEP_SUMMARY
+        echo "- **Allure Report**: Download artifact 'allure-html-report'" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### Local Testing:" >> $GITHUB_STEP_SUMMARY
+        echo "\`\`\`bash" >> $GITHUB_STEP_SUMMARY
+        echo "# Run local tests" >> $GITHUB_STEP_SUMMARY
+        echo "npm test" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "# View Playwright report" >> $GITHUB_STEP_SUMMARY
+        echo "npm run report" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "# Generate and view Allure report" >> $GITHUB_STEP_SUMMARY
+        echo "npm run allure:report && npm run allure:open" >> $GITHUB_STEP_SUMMARY
+        echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
