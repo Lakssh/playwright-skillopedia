@@ -62,7 +62,7 @@ export default class ExtentReporter implements Reporter {
     // Ensure we have a current suite
     if (!this.currentSuite) {
       this.currentSuite = {
-        name: test.file || 'Default Suite',
+        name: test.titlePath()[0] || 'Default Suite',
         tests: [],
         startTime: Date.now(),
         duration: 0,
