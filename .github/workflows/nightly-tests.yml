@@ -84,11 +84,4 @@ jobs:
         echo "### Reports Available:" >> $GITHUB_STEP_SUMMARY
         echo "- **Playwright HTML Report**: Download artifact 'playwright-report'" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
-        echo "### Local Testing:" >> $GITHUB_STEP_SUMMARY
-        echo "\`\`\`bash" >> $GITHUB_STEP_SUMMARY
-        echo "# Run local tests" >> $GITHUB_STEP_SUMMARY
-        echo "npm test" >> $GITHUB_STEP_SUMMARY
-        echo "" >> $GITHUB_STEP_SUMMARY
-        echo "# View report" >> $GITHUB_STEP_SUMMARY
-        echo "npm run report" >> $GITHUB_STEP_SUMMARY
         echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
