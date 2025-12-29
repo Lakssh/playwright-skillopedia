@@ -1,170 +1,257 @@
 import { test, expect } from '@playwright/test';
 import { RegisterPage } from '../../../src/pages/auth/RegisterPage';
-import { DataHelper } from '../../../src/core/helpers/DataHelper';
+import { faker } from '@faker-js/faker';
 
-test.describe('Registration Functionality', () => {
+test.describe('User Registration Journey', () => {
   let registerPage: RegisterPage;
 
   test.beforeEach(async ({ page }) => {
     registerPage = new RegisterPage(page);
-    await registerPage.goto();
   });
 
-  test('should display registration page correctly @smoke @auth', async () => {
-    await registerPage.verifyRegisterPageDisplayed();
-    
-    const title = await registerPage.getTitle();
-    expect(title).toBeTruthy();
-  });
-
-  test('should show validation error for empty fields @auth', async ({ page }) => {
-    await registerPage.clickSubmit();
-    
-    // Wait for validation
-    await page.waitForTimeout(1000);
-    
-    // Should stay on registration page
-    const currentUrl = await registerPage.getCurrentUrl();
-    expect(currentUrl).toMatch(/register|signup|sign-up/i);
-  });
-
-  test('should show error for invalid email format @auth', async ({ page }) => {
-    const firstName = DataHelper.generateFirstName();
-    const lastName = DataHelper.generateLastName();
-    const password = DataHelper.generatePassword();
-    
-    await registerPage.enterFirstName(firstName);
-    await registerPage.enterLastName(lastName);
-    await registerPage.enterEmail('invalid-email');
-    await registerPage.enterPassword(password);
-    await registerPage.clickSubmit();
-    
-    await page.waitForTimeout(1000);
-    
-    // Should stay on registration page
-    const currentUrl = await registerPage.getCurrentUrl();
-    expect(currentUrl).toMatch(/register|signup|sign-up/i);
-  });
-
-  test('should show error for weak password @auth', async ({ page }) => {
-    const firstName = DataHelper.generateFirstName();
-    const lastName = DataHelper.generateLastName();
-    const email = DataHelper.generateEmail();
-    
-    await registerPage.enterFirstName(firstName);
-    await registerPage.enterLastName(lastName);
-    await registerPage.enterEmail(email);
-    await registerPage.enterPassword('123'); // Weak password
-    
-    // Check if confirm password field exists
-    const confirmPasswordField = page.locator('input[name="confirmPassword"], input[placeholder*="confirm" i]').first();
-    if (await confirmPasswordField.isVisible()) {
-      await registerPage.enterConfirmPassword('123');
-    }
-    
-    await registerPage.clickSubmit();
-    
-    await page.waitForTimeout(1000);
-    
-    // Should stay on registration page or show error
-    const currentUrl = await registerPage.getCurrentUrl();
-    expect(currentUrl).toMatch(/register|signup|sign-up/i);
-  });
-
-  test('should show error for mismatched passwords @auth', async ({ page }) => {
-    const firstName = DataHelper.generateFirstName();
-    const lastName = DataHelper.generateLastName();
-    const email = DataHelper.generateEmail();
-    const password = DataHelper.generatePassword();
-    
-    // Check if confirm password field exists
-    const confirmPasswordField = page.locator('input[name="confirmPassword"], input[placeholder*="confirm" i]').first();
-    
-    if (await confirmPasswordField.isVisible()) {
-      await registerPage.enterFirstName(firstName);
-      await registerPage.enterLastName(lastName);
-      await registerPage.enterEmail(email);
-      await registerPage.enterPassword(password);
-      await registerPage.enterConfirmPassword('DifferentPassword123!');
-      await registerPage.clickSubmit();
-      
-      await page.waitForTimeout(1000);
-      
-      // Should stay on registration page
-      const currentUrl = await registerPage.getCurrentUrl();
-      expect(currentUrl).toMatch(/register|signup|sign-up/i);
-    } else {
-      test.skip();
-    }
-  });
-
-  test('should successfully register with valid data @auth @critical', async ({ page }) => {
-    const firstName = DataHelper.generateFirstName();
-    const lastName = DataHelper.generateLastName();
-    const email = DataHelper.generateEmail();
-    const password = DataHelper.generatePassword();
-    
-    // Check what fields are available
-    const confirmPasswordField = page.locator('input[name="confirmPassword"], input[placeholder*="confirm" i]').first();
-    const hasConfirmPassword = await confirmPasswordField.isVisible().catch(() => false);
-    
-    await registerPage.register({
-      firstName,
-      lastName,
-      email,
-      password,
-      confirmPassword: hasConfirmPassword ? password : undefined,
+  test.describe('Navigation and Role Selection', () => {
+    test('should navigate to registration page via Sign In -> Sign up free @registration @navigation', async () => {
+      await registerPage.navigateToRegistration();
+      await registerPage.verifyRegistrationPageDisplayed();
     });
-    
-    // Wait for response
-    await page.waitForTimeout(3000);
-    
-    // After registration, might redirect or show success
-    // This depends on the actual app behavior
-    const currentUrl = await registerPage.getCurrentUrl();
-    
-    // Verify we're not on an error state
-    expect(currentUrl).toBeTruthy();
+
+    test('should display different role descriptions when selecting roles @registration @roles', async () => {
+      await registerPage.navigateToRegistration();
+      
+      // Test Skill Seeker role
+      await registerPage.selectRole('seeker');
+      const seekerDescription = await registerPage.getRoleDescription();
+      expect(seekerDescription).toContain('Skill Seekers learn new skills independently');
+      
+      // Test Skill Guide role
+      await registerPage.selectRole('guide');
+      const guideDescription = await registerPage.getRoleDescription();
+      expect(guideDescription).toContain('Skill Guides help others find and book');
+      
+      // Test Skill Mentor role
+      await registerPage.selectRole('mentor');
+      const mentorDescription = await registerPage.getRoleDescription();
+      expect(mentorDescription).toContain('Skill Mentors are verified experts');
+    });
+
+    test('should show mentor type selection for mentor role @registration @roles @mentor', async () => {
+      await registerPage.navigateToRegistration();
+      
+      // Select mentor role
+      await registerPage.selectRole('mentor');
+      
+      // Verify mentor type selection appears
+      expect(await registerPage.isMentorTypeSelectionVisible()).toBeTruthy();
+      
+      // Test selecting individual mentor
+      await registerPage.selectMentorType('individual');
+    });
+
+    test('should show age field for skill seeker role @registration @roles @seeker', async () => {
+      await registerPage.navigateToRegistration();
+      
+      await registerPage.selectRole('seeker');
+      
+      expect(await registerPage.isAgeFieldVisible()).toBeTruthy();
+      
+      const ageNote = await registerPage.getAgeNote();
+      expect(ageNote).toContain('Skill Seekers under 13 must be registered');
+    });
   });
 
-  test('should navigate to login page from registration @auth', async ({ page }) => {
-    const loginLink = page.locator('a:has-text("Sign in"), a:has-text("Login")').first();
-    
-    if (await loginLink.isVisible()) {
-      await registerPage.clickLogin();
-      
-      await page.waitForTimeout(2000);
-      
-      const currentUrl = await registerPage.getCurrentUrl();
-      expect(currentUrl).toContain('/login');
-    } else {
-      test.skip();
-    }
+  test.describe('Successful Registration', () => {
+    test('should register successfully as Skill Seeker @registration @registration @critical', async ({ page }) => {
+      const userData = {
+        role: 'seeker' as const,
+        firstName: faker.person.firstName(),
+        lastName: faker.person.lastName(),
+        email: faker.internet.email(),
+        age: faker.number.int({ min: 18, max: 65 }),
+        password: 'SecurePass123!',
+        confirmPassword: 'SecurePass123!',
+        acceptTerms: true
+      };
+
+      await registerPage.register(userData);
+      await registerPage.handleRegistrationSuccess();
+    });
+
+    test('should register successfully as Skill Guide @registration @registration @critical', async ({ page }) => {
+      const userData = {
+        role: 'guide' as const,
+        firstName: faker.person.firstName(),
+        lastName: faker.person.lastName(),
+        email: faker.internet.email(),
+        password: 'SecurePass123!',
+        confirmPassword: 'SecurePass123!',
+        acceptTerms: true
+      };
+
+      await registerPage.register(userData);
+      await registerPage.handleRegistrationSuccess();
+    });
+
+    test('should register successfully as Individual Skill Mentor @registration @registration @mentor @critical', async ({ page }) => {
+      const userData = {
+        role: 'mentor' as const,
+        mentorType: 'individual' as const,
+        firstName: faker.person.firstName(),
+        lastName: faker.person.lastName(),
+        email: faker.internet.email(),
+        password: 'SecurePass123!',
+        confirmPassword: 'SecurePass123!',
+        acceptTerms: true
+      };
+
+      await registerPage.register(userData);
+      await registerPage.handleRegistrationSuccess();
+    });
+
+    test('should register successfully as Organization Skill Mentor @registration @registration @mentor @critical', async ({ page }) => {
+      const userData = {
+        role: 'mentor' as const,
+        mentorType: 'organization' as const,
+        firstName: faker.person.firstName(),
+        lastName: faker.person.lastName(),
+        email: faker.internet.email(),
+        password: 'SecurePass123!',
+        confirmPassword: 'SecurePass123!',
+        acceptTerms: true
+      };
+
+      await registerPage.register(userData);
+      await registerPage.handleRegistrationSuccess();
+    });
   });
 
-  test('should enforce password requirements @auth', async ({ page }) => {
-    const firstName = DataHelper.generateFirstName();
-    const lastName = DataHelper.generateLastName();
+  test.describe('Form Validation', () => {
+    test('should require all mandatory fields @registration @validation', async () => {
+      await registerPage.navigateToRegistration();
+      await registerPage.selectRole('seeker');
+      
+      // Try to submit without filling any fields
+      await registerPage.submitRegistration();
+     await registerPage.verifyRegistrationPageDisplayed();  
+    });
+
+    test('should validate email format @registration @validation @email', async () => {
+      const userData = {
+        role: 'seeker' as const,
+        firstName: faker.person.firstName(),
+        lastName: faker.person.lastName(),
+        email: 'invalid-email-format',
+        age: 25,
+        password: 'SecurePass123!',
+        confirmPassword: 'SecurePass123!',
+        acceptTerms: true
+      };
+
+      await registerPage.register(userData);
+      await registerPage.verifyRegistrationPageDisplayed();  
+    });
+
+    test('should validate password confirmation match @registration @validation @password', async () => {
+      const userData = {
+        role: 'seeker' as const,
+        firstName: faker.person.firstName(),
+        lastName: faker.person.lastName(),
+        email: faker.internet.email(),
+        age: 25,
+        password: 'SecurePass123!',
+        confirmPassword: 'DifferentPassword456!',
+        acceptTerms: true
+      };
+
+      await registerPage.register(userData);
+      await registerPage.verifyRegistrationPageDisplayed();   
     
-    // Try various weak passwords
-    const weakPasswords = ['123', 'password', 'abc123'];
-    
-    for (const weakPassword of weakPasswords) {
-      await registerPage.enterFirstName(firstName);
-      await registerPage.enterLastName(lastName);
-      await registerPage.enterEmail(DataHelper.generateEmail());
-      await registerPage.enterPassword(weakPassword);
-      await registerPage.clickSubmit();
+    });
+
+    test('should require terms acceptance @registration @validation @terms', async ({ page }) => {
+      const userData = {
+        role: 'seeker' as const,
+        firstName: faker.person.firstName(),
+        lastName: faker.person.lastName(),
+        email: faker.internet.email(),
+        age: 25,
+        password: 'SecurePass123!',
+        confirmPassword: 'SecurePass123!',
+        acceptTerms: false
+      };
+
+      await registerPage.register(userData);
+      await registerPage.verifyRegistrationPageDisplayed();
+    });
+
+    test('should validate age for skill seekers @registration @validation @age', async () => {
+      await registerPage.navigateToRegistration();
+      await registerPage.selectRole('seeker');
       
-      await page.waitForTimeout(1000);
+      const userData = {
+        firstName: faker.person.firstName(),
+        lastName: faker.person.lastName(),
+        email: faker.internet.email(),
+        age: -5, // Invalid age
+        password: 'SecurePass123!',
+        confirmPassword: 'SecurePass123!',
+        acceptTerms: true
+      };
+
+      await registerPage.fillRegistrationForm(userData);
+      await registerPage.submitRegistration();
+      await registerPage.verifyRegistrationPageDisplayed();  
+    });
+  });
+
+  test.describe('Edge Cases', () => {
+    test('should handle registration with existing email @registration @validation @duplicate', async ({ page }) => {
+      const email = 'existing.user@example.com';
       
-      // Should stay on registration page
-      const currentUrl = await registerPage.getCurrentUrl();
-      expect(currentUrl).toMatch(/register|signup|sign-up/i);
+      // First registration
+      const userData1 = {
+        role: 'seeker' as const,
+        firstName: faker.person.firstName(),
+        lastName: faker.person.lastName(),
+        email: email,
+        age: 25,
+        password: 'SecurePass123!',
+        confirmPassword: 'SecurePass123!',
+        acceptTerms: true
+      };
+
+      await registerPage.register(userData1);
       
-      // Clear fields for next iteration
-      await page.reload();
-      await page.waitForLoadState('domcontentloaded');
-    }
+      // Handle first success dialog
+      page.on('dialog', dialog => dialog.accept());
+      await registerPage.handleRegistrationSuccess();
+      
+      // Try to register again with same email
+      const userData2 = {
+        role: 'guide' as const,
+        firstName: faker.person.firstName(),
+        lastName: faker.person.lastName(),
+        email: email, // Same email
+        password: 'SecurePass123!',
+        confirmPassword: 'SecurePass123!',
+        acceptTerms: true
+      };
+      await registerPage.register(userData2);
+      await registerPage.verifyRegistrationPageDisplayed();  
+    });
+
+    test('should navigate back to login from registration @registration @navigation', async ({ page }) => {
+      await registerPage.navigateToRegistration();
+      await registerPage.navigateToSignIn();
+      await registerPage.browser().waitForPageLoad
+      await registerPage.browser().waitForURL('**/auth/signin');
+      await registerPage.assertion().assertUrlContains(page, '/auth/signin');
+    });
+  });
+
+  test.describe('Google Sign Up', () => {
+    test('should display Google sign up option @registration @oauth @google', async () => {
+      await registerPage.navigateToRegistration();
+      await expect(registerPage.googleButton).toBeVisible();
+    });
   });
 });

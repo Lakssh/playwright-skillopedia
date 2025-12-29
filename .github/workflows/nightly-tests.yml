@@ -28,7 +28,7 @@ jobs:
       run: npx playwright install --with-deps
 
     - name: Run tests with multiple workers
-      run: npm test -- --project=chrome --grep @login
+      run: npm test -- --project=chrome --grep "@login|@registration"
       env:
         TEST_ENV: dev
         BASE_URL: https://skillopedia.app

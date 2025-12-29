@@ -1,176 +1,257 @@
 import { Page, Locator } from '@playwright/test';
-import { ROUTES } from '../../../test-data/constants';
 import { BasePage } from '@core/base/BasePage';
 
 /**
  * RegisterPage - Page Object Model for registration functionality
+ * Based on actual exploration of skillopedia.app registration flow
  */
 export class RegisterPage extends BasePage {
-  // Locators
-  private readonly firstNameInput: Locator;
-  private readonly lastNameInput: Locator;
-  private readonly emailInput: Locator;
-  private readonly passwordInput: Locator;
-  private readonly confirmPasswordInput: Locator;
-  private readonly submitButton: Locator;
-  private readonly loginLink: Locator;
-  private readonly errorMessage: Locator;
-  private readonly successMessage: Locator;
-  private readonly termsCheckbox: Locator;
+  // Role Selection Locators
+  public readonly skillSeekerButton: Locator;
+  public readonly skillGuideButton: Locator;
+  public readonly skillMentorButton: Locator;
+  public readonly individualMentorButton: Locator;
+  public readonly organizationMentorButton: Locator;
+
+  // Form Field Locators
+  public readonly firstNameInput: Locator;
+  public readonly lastNameInput: Locator;
+  public readonly emailInput: Locator;
+  public readonly ageInput: Locator;
+  public readonly passwordInput: Locator;
+  public readonly confirmPasswordInput: Locator;
+  public readonly termsCheckbox: Locator;
+  public readonly submitButton: Locator;
+  
+
+  // Navigation Locators
+  public readonly registrationButton: Locator;
+  public readonly googleButton: Locator;
+  public readonly signInLink: Locator;
+  
+  // Message Locators
+  public readonly roleDescription: Locator;
+  public readonly ageNote: Locator;
 
   constructor(page: Page) {
     super(page);
     
-    this.firstNameInput = page.locator('input[name="firstName"], input[placeholder*="first name" i]').first();
-    this.lastNameInput = page.locator('input[name="lastName"], input[placeholder*="last name" i]').first();
-    this.emailInput = page.locator('input[type="email"], input[name="email"]').first();
-    this.passwordInput = page.locator('input[type="password"], input[name="password"]').first();
-    this.confirmPasswordInput = page.locator('input[name="confirmPassword"], input[placeholder*="confirm" i]').first();
-    this.submitButton = page.locator('button[type="submit"], button:has-text("Sign up"), button:has-text("Register")').first();
-    this.loginLink = page.locator('a:has-text("Sign in"), a:has-text("Login")').first();
-    this.errorMessage = page.locator('[role="alert"], .error, .error-message').first();
-    this.successMessage = page.locator('.success, .success-message').first();
-    this.termsCheckbox = page.locator('input[type="checkbox"]').first();
+    // Role selection buttons
+    this.skillSeekerButton = page.getByRole('button', { name: 'Skill Seeker Learn new skills' });
+    this.skillGuideButton = page.getByRole('button', { name: 'Skill Guide Guide others\' learning' });
+    this.skillMentorButton = page.getByRole('button', { name: 'Skill Mentor Teach skills' });
+    this.individualMentorButton = page.getByRole('button', { name: 'Individual Personal mentor' });
+    this.organizationMentorButton = page.getByRole('button', { name: 'Organization School, center, academy' });
+
+    // Form fields
+    this.firstNameInput = page.getByRole('textbox', { name: 'First name' });
+    this.lastNameInput = page.getByRole('textbox', { name: 'Last name' });
+    this.emailInput = page.getByRole('textbox', { name: 'Email address' });
+    this.ageInput = page.getByRole('spinbutton', { name: 'Age' });
+    this.passwordInput = page.getByRole('textbox', { name: 'Password', exact: true });
+    this.confirmPasswordInput = page.getByRole('textbox', { name: 'Confirm password' });
+    this.termsCheckbox = page.getByRole('checkbox', { name: /I agree to the Terms and/ });
+    this.submitButton = page.getByRole('button', { name: 'Create account' });
+
+    // Navigation elements
+  
+    this.registrationButton = page.getByText('Get Started', { exact: true });
+    this.googleButton = page.getByRole('button', { name: 'Sign up with Google' });
+    this.signInLink = page.getByRole('link', { name: 'Sign in' });
+    
+
+    // Information elements
+    this.roleDescription = page.locator('div').filter({ hasText: /Skill .* learn|guide|teach/ }).last();
+    this.ageNote = page.getByText('Note: Skill Seekers under 13 must be registered');
   }
 
   /**
-   * Navigate to register page
+   * Navigate to homepage
    */
-  async goto(): Promise<RegisterPage> {
-    await this.browser().navigate(ROUTES.REGISTER);
+  async navigateToHomepage(): Promise<void> {
+    await this.page.goto('/');
     await this.browser().waitForPageLoad();
+  }
+
+  /**
+   * Navigate to registration page via Sign In -> Sign up free path
+   */
+  async navigateToRegistration(): Promise<RegisterPage> {
+    await this.navigateToHomepage();
+    await this.browser().click(this.registrationButton);
+    await this.browser().waitForPageLoad(); 
+    return this;
+  }
+
+    /**
+   * Navigate to registration page via Sign In -> Sign up free path
+   */
+  async navigateToSignIn(): Promise<RegisterPage> {
+    await this.browser().click(this.signInLink);
+    await this.browser().waitForPageLoad(); 
     return this;
   }
 
   /**
-   * Register with user details
-   * @param userData - User registration data
+   * Select user role
    */
-  async register(userData: {
+  async selectRole(role: 'seeker' | 'guide' | 'mentor'): Promise<RegisterPage> {
+    switch (role) {
+      case 'seeker':
+        await this.browser().click(this.skillSeekerButton);
+        break;
+      case 'guide':
+        await this.browser().click(this.skillGuideButton);
+        break;
+      case 'mentor':
+        await this.browser().click(this.skillMentorButton);
+        break;
+    }
+    
+    await this.page.waitForTimeout(500);
+    return this;
+  }
+
+  /**
+   * Select mentor type (only for mentor role)
+   */
+  async selectMentorType(type: 'individual' | 'organization'): Promise<RegisterPage> {
+    if (type === 'individual') {
+      await this.browser().click(this.individualMentorButton);
+    } else {
+      await this.browser().click(this.organizationMentorButton);
+    }
+    
+    await this.page.waitForTimeout(500);
+    return this;
+  }
+
+  /**
+   * Fill registration form
+   */
+  async fillRegistrationForm(userData: {
     firstName: string;
     lastName: string;
     email: string;
+    age?: number;
     password: string;
-    confirmPassword?: string;
+    confirmPassword: string;
+    acceptTerms?: boolean;
   }): Promise<RegisterPage> {
+    
     await this.browser().fill(this.firstNameInput, userData.firstName);
     await this.browser().fill(this.lastNameInput, userData.lastName);
     await this.browser().fill(this.emailInput, userData.email);
+    
+    // Age field is only for certain roles
+    if (userData.age && await this.browser().isVisible(this.ageInput)) {
+      await this.browser().fill(this.ageInput, userData.age.toString());
+    }
+    
     await this.browser().fill(this.passwordInput, userData.password);
+    await this.browser().fill(this.confirmPasswordInput, userData.confirmPassword);
     
-    if (userData.confirmPassword) {
-      await this.browser().fill(this.confirmPasswordInput, userData.confirmPassword);
-    }
-    
-    // Accept terms if checkbox exists
-    if (await this.browser().isVisible(this.termsCheckbox)) {
+    // Accept terms if required
+    if (userData.acceptTerms !== false) {
       await this.browser().click(this.termsCheckbox);
     }
     
+    return this;
+  }
+
+  /**
+   * Submit registration form
+   */
+  async submitRegistration(): Promise<void> {
     await this.browser().click(this.submitButton);
-    return this;
+    await this.page.waitForTimeout(2000);
   }
 
   /**
-   * Enter first name
+   * Complete full registration process
    */
-  async enterFirstName(firstName: string): Promise<RegisterPage> {
-    await this.browser().fill(this.firstNameInput, firstName);
-    return this;
-  }
-
-  /**
-   * Enter last name
-   */
-  async enterLastName(lastName: string): Promise<RegisterPage> {
-    await this.browser().fill(this.lastNameInput, lastName);
-    return this;
-  }
-
-  /**
-   * Enter email
-   */
-  async enterEmail(email: string): Promise<RegisterPage> {
-    await this.browser().fill(this.emailInput, email);
-    return this;
-  }
-
-  /**
-   * Enter password
-   */
-  async enterPassword(password: string): Promise<RegisterPage> {
-    await this.browser().fill(this.passwordInput, password);
-    return this;
-  }
-
-  /**
-   * Enter confirm password
-   */
-  async enterConfirmPassword(password: string): Promise<RegisterPage> {
-    await this.browser().fill(this.confirmPasswordInput, password);
-    return this;
-  }
-
-  /**
-   * Accept terms and conditions
-   */
-  async acceptTerms(): Promise<RegisterPage> {
-    if (await this.browser().isVisible(this.termsCheckbox)) {
-      await this.browser().click(this.termsCheckbox);
+  async register(userData: {
+    role: 'seeker' | 'guide' | 'mentor';
+    mentorType?: 'individual' | 'organization';
+    firstName: string;
+    lastName: string;
+    email: string;
+    age?: number;
+    password: string;
+    confirmPassword: string;
+    acceptTerms?: boolean;
+  }): Promise<RegisterPage> {
+    
+    await this.navigateToRegistration();
+    await this.selectRole(userData.role);
+    
+    if (userData.role === 'mentor' && userData.mentorType) {
+      await this.selectMentorType(userData.mentorType);
     }
+    
+    await this.fillRegistrationForm(userData);
+    await this.submitRegistration();
+    
     return this;
   }
 
   /**
-   * Click submit button
+   * Handle registration success dialog and verify redirect
    */
-  async clickSubmit(): Promise<void> {
-    await this.browser().click(this.submitButton);
+  async handleRegistrationSuccess(): Promise<boolean> {
+    try {
+      // Wait for success dialog
+      await this.page.waitForEvent('dialog', { timeout: 5000 });
+      this.page.on('dialog', dialog => dialog.accept());
+      
+      // Check if redirected to signin page after dialog
+      await this.page.waitForURL('**/auth/signin', { timeout: 10000 });
+      return true;
+    } catch {
+      return false;
+    }
   }
 
   /**
-   * Click login link
+   * Get role description text
    */
-  async clickLogin(): Promise<void> {
-    await this.browser().click(this.loginLink);
+  async getRoleDescription(): Promise<string> {
+    return await this.browser().getText(this.roleDescription);
   }
 
   /**
-   * Get error message text
+   * Check if age field is visible
    */
-  async getErrorMessage(): Promise<string> {
-    await this.browser().waitForVisible(this.errorMessage);
-    return await this.browser().getText(this.errorMessage);
+  async isAgeFieldVisible(): Promise<boolean> {
+    return await this.browser().isVisible(this.ageInput);
   }
 
   /**
-   * Get success message text
+   * Check if mentor type selection is visible
    */
-  async getSuccessMessage(): Promise<string> {
-    await this.browser().waitForVisible(this.successMessage);
-    return await this.getText(this.successMessage);
+  async isMentorTypeSelectionVisible(): Promise<boolean> {
+    return await this.browser().isVisible(this.individualMentorButton);
   }
 
   /**
-   * Check if error message is displayed
+   * Get age requirement note
    */
-  async isErrorDisplayed(): Promise<boolean> {
-    return await this.browserisVisible(this.errorMessage);
+  async getAgeNote(): Promise<string> {
+    if (await this.browser().isVisible(this.ageNote)) {
+      return await this.browser().getText(this.ageNote);
+    }
+    return '';
   }
 
   /**
-   * Wait for successful registration
+   * Verify registration page is displayed
    */
-  async waitForRegistrationSuccess(): Promise<void> {
-    await this.page.waitForURL((url) => !url.pathname.includes('/register'), { timeout: 15000 });
-  }
-
-  /**
-   * Verify register page is displayed
-   */
-  async verifyRegisterPageDisplayed(): Promise<void> {
+  async verifyRegistrationPageDisplayed(): Promise<void> {
     await this.browser().expectToBeVisible(this.emailInput);
     await this.browser().expectToBeVisible(this.passwordInput);
     await this.browser().expectToBeVisible(this.submitButton);
+    await this.browser().expectToBeVisible(this.skillSeekerButton);
+    await this.assertion().assertUrlContains(this.page, '/auth/signup');
   }
+
 }

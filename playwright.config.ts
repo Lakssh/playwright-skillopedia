@@ -74,14 +74,14 @@ export default defineConfig({
       testMatch: /global\.setup\.ts/,
     },
 
-    // {
-    //   name: 'chromium',
-    //   use: { 
-    //     ...devices['Desktop Chrome'],
-    //     viewport: { width: 1920, height: 1080 },
-    //   },
-    //   dependencies: ['setup'],
-    // },
+    {
+      name: 'chromium',
+      use: { 
+        ...devices['Desktop Chrome'],
+        viewport: { width: 1920, height: 1080 },
+      },
+      dependencies: ['setup'],
+    },
 
     // {
     //   name: 'firefox',
@@ -121,11 +121,11 @@ export default defineConfig({
     //   dependencies: ['setup'],
     // },
 
-    {
-      name: 'chrome',
-      use: { ...devices['Desktop Chrome'], channel: 'chrome' },
-      dependencies: ['setup'],
-    },
+    // {
+    //   name: 'chrome',
+    //   use: { ...devices['Desktop Chrome'], channel: 'chrome' },
+    //   dependencies: ['setup'],
+    // },
   ],
 
   /* Folder for test artifacts such as screenshots, videos, traces, etc. */

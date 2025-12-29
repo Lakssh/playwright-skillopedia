@@ -5,11 +5,11 @@
   "main": "index.js",
   "scripts": {
     "test": "playwright test",
-    "test:dev": "TEST_ENV=dev npx playwright test --grep @login",
+    "test:dev": "TEST_ENV=dev npx playwright test --grep \"@login|@registration\"",
     "test:staging": "TEST_ENV=staging npx playwright test",
     "test:prod": "TEST_ENV=prod npx playwright test",
     "test:debug": "TEST_ENV=dev npx playwright test --debug",
-    "test:headed": "playwright test --headed --grep @login",
+    "test:headed": "playwright test --headed --grep \"@login|@registration\"",
     "report": "playwright show-report"
   },
   "keywords": [
