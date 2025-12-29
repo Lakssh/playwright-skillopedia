@@ -1,6 +1,8 @@
 name: Smoke Tests
 
 on:
+  push:
+    branches: [ main ]
   pull_request:
     branches: [ main, develop ]
   workflow_dispatch:
@@ -43,7 +45,7 @@ jobs:
     - name: Generate summary
       if: always()
       run: |
-        echo "## 📊 Nightly Test Report" >> $GITHUB_STEP_SUMMARY
+        echo "## 📊 Smoke Test Report" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
         
         # Parse test results from JSON if available
