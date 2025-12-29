@@ -10,10 +10,7 @@
     "test:prod": "TEST_ENV=prod npx playwright test",
     "test:debug": "TEST_ENV=dev npx playwright test --debug",
     "test:headed": "playwright test --headed --grep @login",
-    "report": "playwright show-report",
-    "report:extent": "open extent-report/index.html || xdg-open extent-report/index.html",
-    "allure:report": "allure generate allure-results -o allure-report --clean",
-    "allure:open": "allure open allure-report"
+    "report": "playwright show-report"
   },
   "keywords": [
     "playwright",
@@ -31,7 +28,6 @@
     "@types/node": "^22.0.0",
     "@typescript-eslint/eslint-plugin": "^8.0.0",
     "@typescript-eslint/parser": "^8.0.0",
-    "allure-playwright": "^3.0.0",
     "axe-playwright": "^2.0.0",
     "dotenv": "^16.4.0",
     "eslint": "^8.57.0",

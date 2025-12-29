@@ -41,13 +41,6 @@ export default defineConfig({
     ['html', { outputFolder: 'playwright-report', open: 'never' }],
     ['json', { outputFile: 'test-results/results.json' }],
     ['junit', { outputFile: 'test-results/junit.xml' }],
-    ['allure-playwright', {
-      outputFolder: 'allure-results',
-      suiteTitle: true,
-    }],
-    ['./src/core/reporters/extent-reporter.ts', {
-      outputFolder: 'extent-report',
-    }],
   ],
 
   /* Shared settings for all the projects below */
