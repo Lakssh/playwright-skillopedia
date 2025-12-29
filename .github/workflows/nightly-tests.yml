@@ -84,4 +84,3 @@ jobs:
         echo "### Reports Available:" >> $GITHUB_STEP_SUMMARY
         echo "- **Playwright HTML Report**: Download artifact 'playwright-report'" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
-        echo "\`\`\`" >> $GITHUB_STEP_SUMMARY

@@ -22,6 +22,9 @@ export class RegisterPage extends BasePage {
   public readonly confirmPasswordInput: Locator;
   public readonly termsCheckbox: Locator;
   public readonly submitButton: Locator;
+  public readonly organizationNameInput: Locator;
+  public readonly organizationTypeSelect: Locator;
+
   
 
   // Navigation Locators
@@ -52,6 +55,10 @@ export class RegisterPage extends BasePage {
     this.confirmPasswordInput = page.getByRole('textbox', { name: 'Confirm password' });
     this.termsCheckbox = page.getByRole('checkbox', { name: /I agree to the Terms and/ });
     this.submitButton = page.getByRole('button', { name: 'Create account' });
+    this.organizationNameInput = page.getByRole('textbox', { name: 'Organization Name' });
+    this.organizationTypeSelect = page.getByRole('combobox', { name: 'Organization Type' });
+
+    
 
     // Navigation elements
   
@@ -83,8 +90,8 @@ export class RegisterPage extends BasePage {
     return this;
   }
 
-    /**
-   * Navigate to registration page via Sign In -> Sign up free path
+  /**
+   * Navigate to SignIn page from registration page
    */
   async navigateToSignIn(): Promise<RegisterPage> {
     await this.browser().click(this.signInLink);
@@ -160,6 +167,43 @@ export class RegisterPage extends BasePage {
   }
 
   /**
+   * Fill organization registration form
+   */
+  async fillOrganizationForm(userData: {
+    organizationName: string;
+    organizationType: string;
+    email: string;
+    password: string;
+    confirmPassword: string;
+    acceptTerms?: boolean;
+  }): Promise<RegisterPage> {
+    
+    await this.browser().fill(this.organizationNameInput, userData.organizationName);
+    
+    // Map organization type to the exact option value
+    const orgTypeMapping: Record<string, string> = {
+      'Commercial Organization': '🏢 Commercial Organization',
+      'Non-Profit Organization': '🏛️ Non-Profit Organization',
+      'Community Group': '👥 Community Group',
+      'Public Announcer': '📢 Public Announcer'
+    };
+    
+    const optionValue = orgTypeMapping[userData.organizationType] || userData.organizationType;
+    await this.organizationTypeSelect.selectOption(optionValue);
+    
+    await this.browser().fill(this.emailInput, userData.email);
+    await this.browser().fill(this.passwordInput, userData.password);
+    await this.browser().fill(this.confirmPasswordInput, userData.confirmPassword);
+    
+    // Accept terms if required
+    if (userData.acceptTerms !== false) {
+      await this.browser().click(this.termsCheckbox);
+    }
+    
+    return this;
+  }
+
+  /**
    * Submit registration form
    */
   async submitRegistration(): Promise<void> {
@@ -168,13 +212,15 @@ export class RegisterPage extends BasePage {
   }
 
   /**
-   * Complete full registration process
-   */
+  * Complete full registration process
+  */
   async register(userData: {
     role: 'seeker' | 'guide' | 'mentor';
     mentorType?: 'individual' | 'organization';
-    firstName: string;
-    lastName: string;
+    firstName?: string;
+    lastName?: string;
+    organizationName?: string;
+    organizationType?: string;
     email: string;
     age?: number;
     password: string;
@@ -188,8 +234,38 @@ export class RegisterPage extends BasePage {
     if (userData.role === 'mentor' && userData.mentorType) {
       await this.selectMentorType(userData.mentorType);
     }
+
+    if (userData.role === 'mentor' && userData.mentorType === 'organization') {
+      // Validate organization-specific fields
+      if (!userData.organizationName || !userData.organizationType) {
+        throw new Error('organizationName and organizationType are required for organization mentor registration');
+      }
+      
+      await this.fillOrganizationForm({
+        organizationName: userData.organizationName,
+        organizationType: userData.organizationType,
+        email: userData.email,
+        password: userData.password,
+        confirmPassword: userData.confirmPassword,
+        acceptTerms: userData.acceptTerms
+      });
+    } else {
+      // Validate individual/other role fields
+      if (!userData.firstName || !userData.lastName) {
+        throw new Error('firstName and lastName are required for individual mentor, seeker, or guide registration');
+      }
+      
+      await this.fillRegistrationForm({
+        firstName: userData.firstName,
+        lastName: userData.lastName,
+        email: userData.email,
+        age: userData.age,
+        password: userData.password,
+        confirmPassword: userData.confirmPassword,
+        acceptTerms: userData.acceptTerms
+      });
+    }
     
-    await this.fillRegistrationForm(userData);
     await this.submitRegistration();
     
     return this;
