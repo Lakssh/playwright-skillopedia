@@ -60,7 +60,7 @@ test.describe('User Registration Journey', () => {
   });
 
   test.describe('Successful Registration', () => {
-    test('should register successfully as Skill Seeker @registration  @critical', async ({  }) => {
+    test('should register successfully as Skill Seeker @registration  @smoke', async ({  }) => {
       const userData = {
         role: 'seeker' as const,
         firstName: faker.person.firstName(),
@@ -76,7 +76,7 @@ test.describe('User Registration Journey', () => {
       await registerPage.handleRegistrationSuccess();
     });
 
-    test('should register successfully as Skill Guide @registration @critical', async ({ page }) => {
+    test('should register successfully as Skill Guide @registration @smoke', async ({ page }) => {
       const userData = {
         role: 'guide' as const,
         firstName: faker.person.firstName(),
@@ -91,7 +91,7 @@ test.describe('User Registration Journey', () => {
       await registerPage.handleRegistrationSuccess();
     });
 
-    test('should register successfully as Individual Skill Mentor @registration @mentor @critical', async ({  }) => {
+    test('should register successfully as Individual Skill Mentor @registration @mentor @smoke', async ({  }) => {
       const userData = {
         role: 'mentor' as const,
         mentorType: 'individual' as const,
@@ -107,7 +107,7 @@ test.describe('User Registration Journey', () => {
       await registerPage.handleRegistrationSuccess();
     });
 
-    test('should register successfully as Organization Skill Mentor @registration @mentor @critical', async ({  }) => {
+    test('should register successfully as Organization Skill Mentor @registration @mentor @smoke', async ({  }) => {
       const userData = {
         role: 'mentor' as const,
         mentorType: 'organization' as const,

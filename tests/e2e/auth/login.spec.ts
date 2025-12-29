@@ -32,7 +32,7 @@ test.describe('Login Functionality', () => {
 ];
 
 userTestData.forEach(({ role, emailKey, passwordKey, nameKey }) => {
-  test(`successful login as ${role} @login @critical`, async ({  }) => {
+  test(`successful login as ${role} @login @smoke`, async ({  }) => {
 
     const user_name = loginPage.config().getEnvVariable(emailKey);
     const user_password = loginPage.config().getEnvVariable(passwordKey);
