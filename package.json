@@ -6,6 +6,7 @@
   "scripts": {
     "test": "playwright test",
     "test:dev": "TEST_ENV=dev npx playwright test --grep \"@login|@registration\"",
+    "test:smoke": "npx playwright test --grep \"@smoke\"",
     "test:staging": "TEST_ENV=staging npx playwright test",
     "test:prod": "TEST_ENV=prod npx playwright test",
     "test:debug": "TEST_ENV=dev npx playwright test --debug",
