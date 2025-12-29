@@ -46,7 +46,42 @@ jobs:
       run: |
         echo "## 📊 Nightly Test Report" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
-        echo "### Report Available:" >> $GITHUB_STEP_SUMMARY
+        
+        # Parse test results from JSON if available
+        if [ -f "test-results/results.json" ]; then
+          TOTAL=$(jq '.stats.expected + .stats.unexpected + .stats.skipped + .stats.flaky' test-results/results.json 2>/dev/null || echo "0")
+          PASSED=$(jq '.stats.expected' test-results/results.json 2>/dev/null || echo "0")
+          FAILED=$(jq '.stats.unexpected' test-results/results.json 2>/dev/null || echo "0")
+          SKIPPED=$(jq '.stats.skipped' test-results/results.json 2>/dev/null || echo "0")
+          FLAKY=$(jq '.stats.flaky' test-results/results.json 2>/dev/null || echo "0")
+          DURATION=$(jq '.stats.duration' test-results/results.json 2>/dev/null || echo "0")
+          DURATION_SEC=$(echo "scale=2; $DURATION / 1000" | bc 2>/dev/null || echo "0")
+          
+          echo "### Test Results Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Status | Count |" >> $GITHUB_STEP_SUMMARY
+          echo "|--------|-------|" >> $GITHUB_STEP_SUMMARY
+          echo "| ✅ Passed | $PASSED |" >> $GITHUB_STEP_SUMMARY
+          echo "| ❌ Failed | $FAILED |" >> $GITHUB_STEP_SUMMARY
+          echo "| ⏭️ Skipped | $SKIPPED |" >> $GITHUB_STEP_SUMMARY
+          echo "| 🔄 Flaky | $FLAKY |" >> $GITHUB_STEP_SUMMARY
+          echo "| 📊 Total | $TOTAL |" >> $GITHUB_STEP_SUMMARY
+          echo "| ⏱️ Duration | ${DURATION_SEC}s |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          # Add pass/fail indicator
+          if [ "$FAILED" -eq 0 ]; then
+            echo "### ✅ All tests passed!" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "### ❌ $FAILED test(s) failed" >> $GITHUB_STEP_SUMMARY
+          fi
+          echo "" >> $GITHUB_STEP_SUMMARY
+        else
+          echo "### ⚠️ Test results file not found" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+        fi
+        
+        echo "### Reports Available:" >> $GITHUB_STEP_SUMMARY
         echo "- **Playwright HTML Report**: Download artifact 'playwright-report'" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
         echo "### Local Testing:" >> $GITHUB_STEP_SUMMARY
