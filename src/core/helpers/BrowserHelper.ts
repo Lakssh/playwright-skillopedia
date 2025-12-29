@@ -335,6 +335,19 @@ export  class BrowserHelper {
       throw error;
     }
   }
+  /**
+   * Expect element to be hidden with assertion
+   * @param locator - The locator to check
+   */
+  async expectToBeHidden(locator: Locator): Promise<void> {
+    try {
+      await expect(locator).toBeHidden();
+      LogHelper.logCompleted(`Element is hidden (assertion passed)`);
+    } catch (error) {
+      LogHelper.logFail(`Element should be hidden`, error);
+      throw error;
+    }
+  }
 
   /**
    * Expect element to have text

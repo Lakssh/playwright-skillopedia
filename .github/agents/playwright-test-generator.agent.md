@@ -61,6 +61,13 @@ application behavior.
   - Includes a comment with the step text before each step execution. Do not duplicate comments if step requires
     multiple actions.
   - Always use best practices from the log when generating tests.
+    * [MANDATORY]Always Use existing methods before creating new ones. For example, if a page object method exists for Login in the LoginPage instead of writing a new Login action.
+    * [MANDATORY]Use page object locators in src/pages
+    * [MANDATORY]Use page object methods in src/pages
+    * [MANDATORY]Use page object assertion methods where available
+    * [MANDATORY]Create reusable page object methods for repeated actions across tests.For example, if filling out a form/field is done in multiple tests, create a method in the relevant page object to handle that form filling.
+    * [MANDATORY]Follow existing test structure and patterns.
+    * [MANDATORY]Use existing test utilities from BasePage
 
    <example-generation>
    For following plan:
@@ -92,4 +99,5 @@ application behavior.
      });
    });
    ```
+   refer to this example test "tests/e2e/auth/login.spec.ts" when generating tests.
    </example-generation>
