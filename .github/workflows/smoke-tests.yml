@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  nightly-test:
+  smoke-test:
     timeout-minutes: 120
     runs-on: ubuntu-latest
     
